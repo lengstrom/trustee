@@ -4,7 +4,7 @@
   :license {:name "BSD (3-clause) License"
             :url "http://opensource.org/licenses/BSD-3-Clause"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [seesaw "1.4.5"]]
+                 [seesaw "1.4.0"]]
   :main ^:skip-aot trustee.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
