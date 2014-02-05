@@ -1,13 +1,109 @@
 <html>
 	<head>
-		
+		<link rel="stylesheet" type="text/css" href="/css/style.css">
 	</head>
 	<body>
-		<script type='text/javascript' src = 'js/jquery.js'></script>
-		<script type='text/javascript' src = 'js/socket.io.js'></script>
+		<div>
+			<div id = 'sidebar'>
+				<div class = 'searchbarCont'>
+					<div class = 'loadbar' style='left:-60;'></div>
+					<div class = 'loadbar' style='left:0;'></div>
+					<div class = 'loadbar' style='left:60;'></div>
+					<div class = 'loadbar' style='left:120;'></div>
+					<div class = 'loadbar' style='left:180;'></div>
+					<div class = 'loadbar' style='left:240;'></div>
+					<div class = 'loadbar' style='left:300;'></div>
+					<input type='text' id = 'search' placeholder='Search docs'/>
+				</div>
+				<div class = 'index'>
+					<div style='padding:5px;'>
+						Documentation:
+						<div id='docs'>
+							<div class = 'doc i0'>
+								<div class = 'sidebarItem'>
+									<span class = 'treePointer unselectable'>&#9660;</span> Python 2.0
+								</div>
+								<div class = 'i1'>
+									<div class = 'sidebarItem'>
+										<span class = 'treePointer unselectable'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Modules
+									</div>
+									<div class = 'i2'>
+										<div class = 'sidebarItem'>
+											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> aetools	
+										</div>
+										<div class = 'sidebarItem selected'>
+											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> http
+										</div>
+										<div class = 'sidebarItem'>
+											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> re	
+										</div>
+									</div>
+								</div>
+								<div class = 'i1'>
+									<div class = 'sidebarItem'>
+										<span class = 'treePointer unselectable'>&#9654;</span> <span style='font-family:Times'>&#9608;</span> Classes
+									</div>
+								</div>
+							</div>
+							<div class = 'doc i0'>
+								<div class = 'sidebarItem'>
+									<span class = 'treePointer unselectable'>&#9660;</span> Haskell
+								</div>
+								<div class = 'i1'>
+									<div class = 'sidebarItem'>
+										<span class = 'treePointer unselectable'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Modules
+									</div>
+									<div class = 'i2'>
+										<div class = 'sidebarItem'>
+											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Bits	
+										</div>
+										<div class = 'sidebarItem selected'>
+											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Acceptable
+										</div>
+										<div class = 'sidebarItem'>
+											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Binary	
+										</div>
+									</div>
+								</div>
+								<div class = 'i1'>
+									<div class = 'sidebarItem'>
+										<span class = 'treePointer unselectable'>&#9654;</span> <span style='font-family:Times'>&#9608;</span> Classes
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id = 'content'>
+
+			</div>
+		</div>
+
+		<script type='text/javascript' src = '/js/jquery.js'></script>
+		<script type='text/javascript' src = '/js/socket.io.js'></script>
 		<script>
+			//init
 			// var socket = io.connect('http://localhost:8080');
-			
+			// stopSearchbarLoadingAnim();
+
+			//functions - will eventually put in another js file
+			function startSearchbarLoadingAnim() {
+				var bars = document.getElementsByClassName('loadbar');
+				for (var i = 0; i < bars.length; i++) {
+					bars[i].style.visibility = "";
+					bars[i].style.webkitAnimationPlayState = "running";
+				}
+			};
+
+			function stopSearchbarLoadingAnim() {
+				var bars = document.getElementsByClassName('loadbar');
+				for (var i = 0; i < bars.length; i++) {
+					bars[i].style.webkitAnimationPlayState = "paused";
+					bars[i].style.visibility = "hidden";
+				}
+			};
+
 		</script>
 	</body>
 </html>

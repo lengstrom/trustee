@@ -1,0 +1,173 @@
+body {
+	margin:0;
+	padding:0;
+	font-family: Helvetica;
+}
+
+#sidebar {
+	position:absolute;
+	left:0;
+	top:0;
+	width:326px;
+	height:100%;
+	background-color: #232323;
+	font-size: 11pt;
+	color:#DEDEDE;
+}
+
+.sidebarItem {
+	height:15px;
+	padding-bottom:5px;
+}
+
+.treePointer {
+	font-size: 8pt;
+	padding-right:6px;
+	width:16px;
+	height:16px;
+	overflow:hidden;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+.selected {
+	background-color: #DEDEDE;
+	color:#232323;
+	width:283px;
+}
+
+.i0 {
+	margin-left:0;
+}
+
+.i1 {
+	margin-left:11px;
+}
+
+.i2 {
+	margin-left:22px;
+}
+
+.i3 {
+	margin-left:33px;
+}
+
+.i4 {
+	margin-left:44px;
+}
+
+.i5 {
+	margin-left:55px;
+}
+
+.index {
+	background-color: #232323;
+	position:relative;
+	z-index: 1;
+	width:100%;
+	height:100%;
+}
+
+#search {
+	position:relative;
+	padding:2px;
+	padding-left:4px;
+	height:30px;
+	color:#DEDEDE;
+	background-color:#232323;
+	margin-left:3px;
+	border:1px solid #DEDEDE; 
+	margin-top:13px;
+	margin-bottom: 13px;
+	font-size: 11pt;
+	width:300px;
+	left:10px;
+}
+
+#search:focus {
+    outline: 0;
+}
+
+.loadbar {
+	height:140%;
+	left:30px;
+	top:-12px;
+	/*ie 9+, opera, etc work fine */
+	-webkit-transform:rotate(30deg);
+	-moz-transform:rotate(30deg);
+	-o-transform:rotate(30deg);
+	-ms-transform:rotate(30deg);
+	transform:rotate(30deg);
+	width:20px;
+	background-color: #DEDEDE;
+	position:absolute;
+	-moz-animation: load 1s infinite linear;
+	-webkit-animation: load 1s infinite linear;
+	animation: load 1s infinite linear;
+}
+
+#docs {
+	margin-left:5px;
+}
+
+.unselectable {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.searchbarCont {
+	overflow: hidden;
+	position:relative;
+	border-bottom:1px #DEDEDE solid;
+}
+
+::-webkit-input-placeholder { /* WebKit browsers */
+	color:#DEDEDE;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+	color:#DEDEDE;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+	color:#DEDEDE;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+	color:#DEDEDE;
+}
+
+/* CSS 3 Anims */
+
+@-webkit-keyframes load {
+	from {
+		margin-left:1;
+	}
+
+	to {
+		margin-left:60;
+	}
+}
+
+@-moz-keyframes load {
+	from {
+		margin-left:1;
+	}
+
+	to {
+		margin-left:60;
+	}
+}
+
+@keyframes load {
+	from {
+		margin-left:1;
+	}
+
+	to {
+		margin-left:60;
+	}
+}
