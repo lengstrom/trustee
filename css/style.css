@@ -4,6 +4,21 @@ body {
 	font-family: Helvetica;
 }
 
+#header {
+	width:100%;
+	height:57px;
+	border-bottom: 1px solid #DEDEDE;
+	background-color: #232323;
+}
+
+#content {
+	width:-webkit-calc(100% - 326px);
+	width:-moz-calc(100% - 326px);
+	width:calc(100% - 326px);
+	position:absolute;
+	left:326px;
+}
+
 #sidebar {
 	position:absolute;
 	left:0;
@@ -125,6 +140,7 @@ body {
 	overflow: hidden;
 	position:relative;
 	border-bottom:1px #DEDEDE solid;
+	border-right:1px #DEDEDE solid;
 }
 
 ::-webkit-input-placeholder { /* WebKit browsers */
