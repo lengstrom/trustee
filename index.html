@@ -79,6 +79,7 @@
 				<div id = 'header'>
 					<center id = 'docTitle' style='color:#DEDEDE;line-height:58px;'>Python 2.7 Documentation</center>
 				</div>
+				<iframe id='display' src="splash.html"></iframe>
 			</div>
 		</div>
 
@@ -109,6 +110,15 @@
 					bars[i].style.visibility = "hidden";
 				}
 			};
+
+			function setFrameURL(url) {
+				if (!url) {
+					setFrameURL('splash.html');
+				}
+				else {
+					document.getElementById('display').src = url;
+				}
+			}
 
 		</script>
 	</body>

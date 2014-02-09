@@ -5,16 +5,25 @@ body {
 }
 
 #header {
+	position:relative;
 	width:100%;
 	height:57px;
 	border-bottom: 1px solid #DEDEDE;
 	background-color: #232323;
 }
 
+#display {
+	border: none;
+	position:absolute;
+	width:100%;
+	height:100%;
+}
+
 #content {
 	width:-webkit-calc(100% - 326px);
 	width:-moz-calc(100% - 326px);
 	width:calc(100% - 326px);
+	height:100%;
 	position:absolute;
 	left:326px;
 }
