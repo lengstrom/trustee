@@ -87,10 +87,11 @@
 		<script type='text/javascript' src = 'js/socket.io.js'></script>
 		<script>
 			//init
-			// var socket = io.connect('http://localhost:8080');
 			// stopSearchbarLoadingAnim();
 
 			//functions - will eventually put in another js file
+			require('nw.gui').Window.get().maximize(); //maximize window on startup
+
 			function setDocTitle(title) {
 				$('#docTitle').html(title);
 			}
@@ -120,7 +121,7 @@
 				}
 			}
 
-
+			
 		</script>
 	</body>
 </html>

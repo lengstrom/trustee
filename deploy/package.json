@@ -1,9 +1,14 @@
 {
   "name": "Trustee",
   "main": "index.html",
+  "description": "Open source documentation manager",
   "window": {
-    "toolbar": true,
-    "width": 800,
-    "height": 600
+    "toolbar": false,
+    // "icon": "icon.png", //need an icon
+    "width": 640,
+    "height": 800,
+    "frame": true,
+    "title":"Trustee",
+    "resizable":true
   }
 }
