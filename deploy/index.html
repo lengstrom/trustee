@@ -143,8 +143,7 @@
 					return;
 				}
 
-				if (e.clientX > 625) { //set minimum width of right column to 150px
-					$('#lcol').css('width', 625 - 3 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+				if (e.clientX > 625) { //set minimum width of right column to 150px						
 					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
@@ -162,6 +161,31 @@
 			function separatorMouseUp(e) {
 				document.body.style.cursor = '';
 				$(window).unbind('mousemove', separatorMove);
+			}
+
+			function startSearchbarLoadingAnim() {
+				var bars = document.getElementsByClassName('loadbar');
+				for (var i = 0; i < bars.length; i++) {
+					bars[i].style.visibility = "";
+					bars[i].style.webkitAnimationPlayState = "running";
+				}
+			};
+
+			function stopSearchbarLoadingAnim() {
+				var bars = document.getElementsByClassName('loadbar');
+				for (var i = 0; i < bars.length; i++) {
+					bars[i].style.webkitAnimationPlayState = "paused";
+					bars[i].style.visibility = "hidden";
+				}
+			};
+
+			function setFrameURL(url) {
+				if (!url) {
+					setFrameURL('splash.html');
+				}
+				else {
+					document.getElementById('display').src = url;
+				}
 			}
 		</script>
 	</body>
