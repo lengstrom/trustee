@@ -8,6 +8,8 @@
 				padding:0;
 				height:100%;
 				width:100%;
+				font-size: 10.5pt;
+				font-family: helvetica;
 			}
 
 			#lcol {
@@ -48,7 +50,7 @@
 				margin-left:13px;
 				margin-top:13px;
 				margin-bottom: 13px;
-				font-size: 10.5pt;
+				font-size: 9pt;
 			}
 
 			.loadbar {
@@ -98,6 +100,14 @@
 					margin-left:60;
 				}
 			}
+
+			.itemBar {
+				height:20px;
+				line-height:20px;
+				overflow: hidden;
+				position:relative;
+				font-size: 9pt;
+			}
 		</style>
 	</head>
 	<body>
@@ -117,6 +127,7 @@
 				<div class = 'loadbar' style='left:600px;'></div>
 				<input type='text' id = 'search' placeholder='Search docs'/>
 			</div>
+			<span style = 'position:relative;padding-left:12px;margin-top:12px;'><b>DOCS</b></span>
 		</div>
 		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:6px;height:100%;cursor:ew-resize;'></div>
 		<div id = 'rcol' style = 'position:relative;background-color:red;float:left;margin:0;width:400px;height:100%;'></div>
