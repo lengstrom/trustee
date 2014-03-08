@@ -1,127 +1,57 @@
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
+		<!-- Set min-width in node-webkit to 310px -->
+		<style type='text/css'>
+			html, body {
+				margin:0;
+				padding:0;
+				height:100%;
+				width:100%;
+			}
+		</style>
 	</head>
 	<body>
-		<div>
-			<div id = 'sidebar'>
-				<div class = 'searchbarCont'>
-					<div class = 'loadbar' style='left:-60;'></div>
-					<div class = 'loadbar' style='left:0;'></div>
-					<div class = 'loadbar' style='left:60;'></div>
-					<div class = 'loadbar' style='left:120;'></div>
-					<div class = 'loadbar' style='left:180;'></div>
-					<div class = 'loadbar' style='left:240;'></div>
-					<div class = 'loadbar' style='left:300;'></div>
-					<input type='text' id = 'search' placeholder='Search docs'/>
-				</div>
-				<div class = 'index'>
-					<div style='padding:5px;'>
-						Documentation:
-						<div id='docs'>
-							<div class = 'doc i0'>
-								<div class = 'sidebarItem'>
-									<span class = 'treePointer unselectable'>&#9660;</span> Python 2.0
-								</div>
-								<div class = 'i1'>
-									<div class = 'sidebarItem'>
-										<span class = 'treePointer unselectable'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Modules
-									</div>
-									<div class = 'i2'>
-										<div class = 'sidebarItem'>
-											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> aetools	
-										</div>
-										<div class = 'sidebarItem'>
-											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> http
-										</div>
-										<div class = 'sidebarItem'>
-											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> re	
-										</div>
-									</div>
-								</div>
-								<div class = 'i1'>
-									<div class = 'sidebarItem'>
-										<span class = 'treePointer unselectable'>&#9654;</span> <span style='font-family:Times'>&#9608;</span> Classes
-									</div>
-								</div>
-							</div>
-							<div class = 'doc i0'>
-								<div class = 'sidebarItem'>
-									<span class = 'treePointer unselectable'>&#9660;</span> Haskell
-								</div>
-								<div class = 'i1'>
-									<div class = 'sidebarItem'>
-										<span class = 'treePointer unselectable'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Modules
-									</div>
-									<div class = 'i2'>
-										<div class = 'sidebarItem'>
-											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Bits	
-										</div>
-										<div class = 'sidebarItem selected'>
-											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Acceptable
-										</div>
-										<div class = 'sidebarItem'>
-											<span class = 'treePointer hidden'>&#9660;</span> <span style='font-family:Times'>&#9608;</span> Binary	
-										</div>
-									</div>
-								</div>
-								<div class = 'i1'>
-									<div class = 'sidebarItem'>
-										<span class = 'treePointer unselectable'>&#9654;</span> <span style='font-family:Times'>&#9608;</span> Classes
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id = 'content'>
-				<div id = 'header'>
-					<center id = 'docTitle' style='color:#DEDEDE;line-height:58px;'>Python 2.7 Documentation</center>
-				</div>
-				<iframe id='display' src="splash.html"></iframe>
-			</div>
-		</div>
+		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:250px;height:100%;'></div>
+		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:10px;height:100%;cursor:ew-resize;'></div>
+		<div id = 'rcol' style = 'position:relative;background-color:red;float:left;margin:0;width:400px;height:100%;'></div>
 
-		<script type='text/javascript' src = 'js/jquery.js'></script>
-		<script type='text/javascript' src = 'js/socket.io.js'></script>
-		<script>
-			//init
-			// stopSearchbarLoadingAnim();
+		<script type='text/javascript' src='js/jquery.js'></script>
+		<script type="text/javascript">
+			$('#separator').bind('mousedown', function(e) {
+				document.body.style.cursor = 'ew-resize';
+				$(window).bind('mousemove', separatorMove);
+			});
 
-			//functions - will eventually put in another js file
-			require('nw.gui').Window.get().maximize(); //maximize window on startup
+			$(window).bind('mouseup', separatorMouseUp);
+			$(window).resize(windowResize);
+			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px'); //set right col relative to left
 
-			function setDocTitle(title) {
-				$('#docTitle').html(title);
+			function windowResize() {
+				$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px');
 			}
 
-			function startSearchbarLoadingAnim() {
-				var bars = document.getElementsByClassName('loadbar');
-				for (var i = 0; i < bars.length; i++) {
-					bars[i].style.visibility = "";
-					bars[i].style.webkitAnimationPlayState = "running";
+			function separatorMove(e) {
+				if (e.clientX < 150) { //set minimum width of left column to 150px
+					$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
+					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px');
+					return;
 				}
-			};
 
-			function stopSearchbarLoadingAnim() {
-				var bars = document.getElementsByClassName('loadbar');
-				for (var i = 0; i < bars.length; i++) {
-					bars[i].style.webkitAnimationPlayState = "paused";
-					bars[i].style.visibility = "hidden";
+				if (parseInt($(document).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
+					$('#lcol').css('width', parseInt($(document).width(), 10) - 140 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px');
+					return;
 				}
-			};
 
-			function setFrameURL(url) {
-				if (!url) {
-					setFrameURL('splash.html');
-				}
-				else {
-					document.getElementById('display').src = url;
-				}
+				$('#lcol').css('width', e.clientX - 5 + 'px');
+				$('#rcol').css('width', parseInt($(document).width(), 10) - e.clientX - 5 + 'px');
 			}
 
-
+			function separatorMouseUp(e) {
+				document.body.style.cursor = '';
+				$(window).unbind('mousemove', separatorMove);
+			}
 		</script>
 	</body>
 </html>
