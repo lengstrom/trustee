@@ -9,11 +9,116 @@
 				height:100%;
 				width:100%;
 			}
+
+			#lcol {
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			.searchbarCont {
+				overflow:hidden;
+				position:relative;
+				border-bottom:1px #232323 solid;
+				z-index: 2;
+				width:-moz-calc(100% + 6px);
+				width:-webkit-calc(100% + 6px);
+				width:-o-calc(100% + 6px);
+				width:calc(100% + 6px);
+			}
+
+			#search:focus {
+				outline-width: 0;
+			}
+
+			#search {
+				position:relative;
+				height:30px;
+				background-color: rgb(230, 233, 240);
+				border:1px solid #232323;
+				width:-moz-calc(100% - 26px);
+				width:-webkit-calc(100% - 26px);
+				width:-o-calc(100% - 26px);
+				width:calc(100% - 26px);
+				padding-left:4px;
+				margin:0;
+				margin-left:13px;
+				margin-top:13px;
+				margin-bottom: 13px;
+				font-size: 10.5pt;
+			}
+
+			.loadbar {
+				height:140%;
+				left:30px;
+				top:-12px;
+				/*ie 9+, opera, etc work fine */
+				-webkit-transform:rotate(30deg);
+				-moz-transform:rotate(30deg);
+				-o-transform:rotate(30deg);
+				-ms-transform:rotate(30deg);
+				transform:rotate(30deg);
+				width:20px;
+				background-color: #232323; /*#DEDEDE;*/
+				position:absolute;
+				-moz-animation: load 1s infinite linear;
+				-webkit-animation: load 1s infinite linear;
+				animation: load 1s infinite linear;
+			}
+
+			@-webkit-keyframes load {
+				from {
+					margin-left:1;
+				}
+
+				to {
+					margin-left:60;
+				}
+			}
+
+			@-moz-keyframes load {
+				from {
+					margin-left:1;
+				}
+
+				to {
+					margin-left:60;
+				}
+			}
+
+			@keyframes load {
+				from {
+					margin-left:1;
+				}
+
+				to {
+					margin-left:60;
+				}
+			}
 		</style>
 	</head>
 	<body>
-		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:250px;height:100%;'></div>
-		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:10px;height:100%;cursor:ew-resize;'></div>
+		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;padding:0;width:250px;height:100%;'>
+			<div class = 'searchbarCont'>
+				<div class = 'loadbar' style='left:-60px;'></div>
+				<div class = 'loadbar' style='left:0px;'></div>
+				<div class = 'loadbar' style='left:60px;'></div>
+				<div class = 'loadbar' style='left:120px;'></div>
+				<div class = 'loadbar' style='left:180px;'></div>
+				<div class = 'loadbar' style='left:240px;'></div>
+				<div class = 'loadbar' style='left:300px;'></div>
+				<div class = 'loadbar' style='left:360px;'></div>
+				<div class = 'loadbar' style='left:420px;'></div>
+				<div class = 'loadbar' style='left:480px;'></div>
+				<div class = 'loadbar' style='left:540px;'></div>
+				<div class = 'loadbar' style='left:600px;'></div>
+				<input type='text' id = 'search' placeholder='Search docs'/>
+			</div>
+		</div>
+		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:6px;height:100%;cursor:ew-resize;'></div>
 		<div id = 'rcol' style = 'position:relative;background-color:red;float:left;margin:0;width:400px;height:100%;'></div>
 
 		<script type='text/javascript' src='js/jquery.js'></script>
@@ -25,27 +130,33 @@
 
 			$(window).bind('mouseup', separatorMouseUp);
 			$(window).resize(windowResize);
-			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px'); //set right col relative to left
+			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
 
 			function windowResize() {
-				$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px');
+				$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 			}
 
 			function separatorMove(e) {
 				if (e.clientX < 150) { //set minimum width of left column to 150px
 					$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
-					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px');
+					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
+					return;
+				}
+
+				if (e.clientX > 625) { //set minimum width of right column to 150px
+					$('#lcol').css('width', 625 - 3 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
 
 				if (parseInt($(document).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
-					$('#lcol').css('width', parseInt($(document).width(), 10) - 140 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
-					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 10 + 'px');
+					$('#lcol').css('width', parseInt($(document).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
 
-				$('#lcol').css('width', e.clientX - 5 + 'px');
-				$('#rcol').css('width', parseInt($(document).width(), 10) - e.clientX - 5 + 'px');
+				$('#lcol').css('width', e.clientX - 3 + 'px');
+				$('#rcol').css('width', parseInt($(document).width(), 10) - e.clientX - 3 + 'px');
 			}
 
 			function separatorMouseUp(e) {

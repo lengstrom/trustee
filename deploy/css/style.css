@@ -1,3 +1,6 @@
+/*searchbarCont
+loadbar
+search*/
 body {
 	margin:0;
 	padding:0;
@@ -146,7 +149,7 @@ body {
 }
 
 .searchbarCont {
-	overflow: hidden;
+	overflow:hidden;
 	position:relative;
 	border-bottom:1px #DEDEDE solid;
 	border-right:1px #DEDEDE solid;
