@@ -47,6 +47,8 @@
 				width:calc(100% - 26px);
 				padding-left:4px;
 				margin:0;
+				color: #232323;
+				background-color: #fdfdfd;
 				margin-left:13px;
 				margin-top:13px;
 				margin-bottom: 13px;
@@ -107,6 +109,35 @@
 				overflow: hidden;
 				position:relative;
 				font-size: 9pt;
+				z-index: 2;
+				width:-moz-calc(100% + 6px);
+				width:-webkit-calc(100% + 6px);
+				width:-o-calc(100% + 6px);
+				width:calc(100% + 6px);
+			}
+
+			.itemText:hover {
+				text-shadow: 0 0 1px rgba(0,0,0,0.5); /* blurring */
+			}
+
+			.itemText {
+				cursor:pointer;
+			}
+
+			.i0 {
+				margin-left: 12px; /*12 + 18 * level px */
+			}
+
+			.i1 {
+				margin-left: 30px;
+			}
+
+			.i2 {
+				margin-left: 48px;
+			}
+
+			.i3 {
+				margin-left: 64px;
 			}
 		</style>
 	</head>
@@ -127,7 +158,23 @@
 				<div class = 'loadbar' style='left:600px;'></div>
 				<input type='text' id = 'search' placeholder='Search docs'/>
 			</div>
-			<span style = 'position:relative;padding-left:12px;margin-top:12px;'><b>DOCS</b></span>
+			<div id = 'tree'>
+				<div class = 'itemBar'>
+					<span class = 'itemText i0'>Item</span>
+				</div>
+				<div class = 'itemBar'>
+					<span class = 'itemText i0'>Docs</span>
+				</div>
+				<div class = 'itemBar'>
+					<span class = 'itemText i1'>Item</span>
+				</div>
+				<div class = 'itemBar'>
+					<span class = 'itemText i1'>Item</span>
+				</div>
+				<div class = 'itemBar'>
+					<span class = 'itemText i0'>Item</span>
+				</div>
+			</div>
 		</div>
 		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:6px;height:100%;cursor:ew-resize;'></div>
 		<div id = 'rcol' style = 'position:relative;background-color:red;float:left;margin:0;width:400px;height:100%;'></div>
@@ -142,6 +189,21 @@
 			$(window).bind('mouseup', separatorMouseUp);
 			$(window).resize(windowResize);
 			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
+
+			stopSearchbarLoadingAnim();
+			var selected;
+
+			$('.itemBar').bind('click', itemClicked);
+
+			function itemClicked() {
+				if (selected) {
+					$(selected).css('background-color', 'rgb(230, 233, 240)');
+					$(selected).css('color', '#232323');
+				}
+				selected = this;
+				$(this).css('background-color', '#232323');
+				$(this).css('color', 'rgb(230, 233, 240)');
+			}
 
 			function windowResize() {
 				$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
