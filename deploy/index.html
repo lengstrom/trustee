@@ -10,10 +10,6 @@
 				width:100%;
 				font-size: 10.5pt;
 				font-family: helvetica;
-			}
-
-			#lcol {
-				overflow:scroll;
 				-webkit-touch-callout: none;
 				-webkit-user-select: none;
 				-khtml-user-select: none;
@@ -22,11 +18,14 @@
 				user-select: none;
 			}
 
+			#lcol {
+				overflow: hidden;
+				overflow-y:scroll;
+			}
+
 			.searchbarCont {
-				overflow:hidden;
 				position:relative;
 				border-bottom:1px #232323 solid;
-				z-index: 2;
 				width:-moz-calc(100% + 6px);
 				width:-webkit-calc(100% + 6px);
 				width:-o-calc(100% + 6px);
@@ -107,7 +106,7 @@
 			.itemBar {
 				height:20px;
 				line-height:20px;
-				overflow: hidden;
+				/*overflow: hidden;*/
 				position:relative;
 				font-size: 9pt;
 				z-index: 2;
@@ -146,49 +145,37 @@
 	<body>
 		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;padding:0;width:250px;height:100%;'>
 			<div class = 'searchbarCont'>
-				<div class = 'loadbar' style='left:-60px;'></div>
-				<div class = 'loadbar' style='left:0px;'></div>
-				<div class = 'loadbar' style='left:60px;'></div>
-				<div class = 'loadbar' style='left:120px;'></div>
-				<div class = 'loadbar' style='left:180px;'></div>
-				<div class = 'loadbar' style='left:240px;'></div>
-				<div class = 'loadbar' style='left:300px;'></div>
-				<div class = 'loadbar' style='left:360px;'></div>
-				<div class = 'loadbar' style='left:420px;'></div>
-				<div class = 'loadbar' style='left:480px;'></div>
-				<div class = 'loadbar' style='left:540px;'></div>
-				<div class = 'loadbar' style='left:600px;'></div>
+				<!-- <div style = 'overflow:hidden;'>
+					<div class = 'loadbar' style='left:-60px;'></div>
+					<div class = 'loadbar' style='left:0px;'></div>
+					<div class = 'loadbar' style='left:60px;'></div>
+					<div class = 'loadbar' style='left:120px;'></div>
+					<div class = 'loadbar' style='left:180px;'></div>
+					<div class = 'loadbar' style='left:240px;'></div>
+					<div class = 'loadbar' style='left:300px;'></div>
+					<div class = 'loadbar' style='left:360px;'></div>
+					<div class = 'loadbar' style='left:420px;'></div>
+					<div class = 'loadbar' style='left:480px;'></div>
+					<div class = 'loadbar' style='left:540px;'></div>
+					<div class = 'loadbar' style='left:600px;'></div>
+				</div> -->
 				<input type='text' id = 'search' placeholder='Search docs'/>
 			</div>
-			<div id = 'tree'>
-				<!-- Examples, feel free to remove. Note that on every change, you'll have to add event listneers to .itemBar - see: $('.itemBar').bind('click', itemClicked); -->
-
-				<!-- <div class = 'itemBar selectable'>
-					<span class = 'itemText i0'>Item</span>
-				</div>
-				<div class = 'itemBar folder'>
-					<span class = 'itemText i0'>Docs</span>
-				</div>
-				<div class = 'itemBar selectable'>
-					<span class = 'itemText i1'>Item</span>
-				</div>
-				<div class = 'itemBar selectable'>
-					<span class = 'itemText i1'>Item</span>
-				</div>
-				<div class = 'itemBar selectable'>
-					<span class = 'itemText i0'>Item</span>
-				</div> -->
-			</div>
+			<div id = 'tree'></div>
 		</div>
-		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:6px;height:100%;cursor:ew-resize;'></div>
+		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;padding:0;margin:0;width:6px;height:100%;cursor:ew-resize;'>
+			<div style = 'position:relative;height:56px;border-bottom: 1px solid #000; margin:0; padding: 0;width:100%;'></div>
+		</div>
 		<div id = 'rcol' style = 'position:relative;float:left;margin:0;width:400px;height:100%;'>
 			<iframe id = 'display' src="splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;'></iframe>
+			<div id = 'displayCover' style = 'position:absolute;width:100%;height:100%;top:0;left:0;background-color:rgba(0, 0, 0, 0);z-index:-1;'></div>
 		</div>
 
 		<script type='text/javascript' src='js/jquery.js'></script>
 		<script type="text/javascript">
 			$('#separator').bind('mousedown', function(e) {
 				document.body.style.cursor = 'ew-resize';
+				$('#displayCover').css('z-index', '2');
 				$(window).bind('mousemove', separatorMove);
 			});
 
@@ -262,33 +249,34 @@
 			}
 
 			function windowResize() {
-				$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
+				$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 			}
 
 			function separatorMove(e) {
 				if (e.clientX < 150) { //set minimum width of left column to 150px
 					$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
-					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
+					$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
 
 				if (e.clientX > 625) { //set minimum width of right column to 150px
-					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
+					$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
 
-				if (parseInt($(document).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
-					$('#lcol').css('width', parseInt($(document).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
-					$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
+				if (parseInt($(window).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
+					$('#lcol').css('width', parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+					$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
 
 				$('#lcol').css('width', e.clientX - 3 + 'px');
-				$('#rcol').css('width', parseInt($(document).width(), 10) - e.clientX - 3 + 'px');
+				$('#rcol').css('width', parseInt($(window).width(), 10) - e.clientX - 3 + 'px');
 			}
 
 			function separatorMouseUp(e) {
 				document.body.style.cursor = '';
+				$('#displayCover').css('z-index', '-1');
 				$(window).unbind('mousemove', separatorMove);
 			}
 
