@@ -13,6 +13,7 @@
 			}
 
 			#lcol {
+				overflow:scroll;
 				-webkit-touch-callout: none;
 				-webkit-user-select: none;
 				-khtml-user-select: none;
@@ -116,10 +117,6 @@
 				width:calc(100% + 6px);
 			}
 
-			.itemText:hover {
-				text-shadow: 0 0 1px rgba(0,0,0,0.5); /* blurring */
-			}
-
 			.itemText {
 				cursor:pointer;
 			}
@@ -166,10 +163,10 @@
 			<div id = 'tree'>
 				<!-- Examples, feel free to remove. Note that on every change, you'll have to add event listneers to .itemBar - see: $('.itemBar').bind('click', itemClicked); -->
 
-				<div class = 'itemBar selectable'>
+				<!-- <div class = 'itemBar selectable'>
 					<span class = 'itemText i0'>Item</span>
 				</div>
-				<div class = 'itemBar'>
+				<div class = 'itemBar folder'>
 					<span class = 'itemText i0'>Docs</span>
 				</div>
 				<div class = 'itemBar selectable'>
@@ -180,12 +177,12 @@
 				</div>
 				<div class = 'itemBar selectable'>
 					<span class = 'itemText i0'>Item</span>
-				</div>
+				</div> -->
 			</div>
 		</div>
 		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;width:6px;height:100%;cursor:ew-resize;'></div>
 		<div id = 'rcol' style = 'position:relative;float:left;margin:0;width:400px;height:100%;'>
-			<iframe src="splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;'></iframe>
+			<iframe id = 'display' src="splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;'></iframe>
 		</div>
 
 		<script type='text/javascript' src='js/jquery.js'></script>
@@ -202,7 +199,57 @@
 			stopSearchbarLoadingAnim();
 			var selected;
 
-			$('.selectable').bind('click', itemClicked);
+			$.get('/plugins/python/output/pyDocs.json', function(d){
+				importJSON(JSON.parse(d));
+			});
+
+			function importJSON(json) {
+				//import docs from json
+				var path = '/plugins/' + json.info.source;
+				var pages = json.info.pages;
+				var items = [];
+				var docsHeader = $('<div>', {class:'itemBar folder'});
+				docsHeader.html('<span class = "itemText i0">' + json.info.name + '</span>');
+				var setDIV = $('<div>');
+				for (var i in json.docs) {
+					if (i !== json.info.pages) {
+						var htmlToAppend = '';
+						for (var j in json.docs[i]) {
+							htmlToAppend = htmlToAppend + "<div class = 'itemBar selectable' onclick=\"setFrameURL('" + path + json.docs[i][j][1] + "')\"><span class = 'itemText i2'>" + json.docs[i][j][0] + "</span></div>";
+						}
+
+						addFolder(i, 1, setDIV, htmlToAppend);
+					}
+				}
+				$('#tree').append(docsHeader);
+				$('#tree').append(setDIV);
+				docsHeader[0].setDIV = setDIV;
+				docsHeader.bind('click', function(){
+					this.setDIV.toggle();
+				});
+				$('.selectable').bind('click', itemClicked);
+				setDIV.children('.folder').each(function(key, value){
+					value.setDIV.toggle();
+				});
+			}
+
+			function addFolder(name, indentationLevel, elem, innerHTML) {
+				var setDIV = $('<div>');
+				var folder = $('<div>', {class:"itemBar folder"});
+				folder.html('<span class = "itemText i1">' + name + '</span>')
+				if (innerHTML) {
+					setDIV.html(innerHTML);
+				}
+
+				folder[0].setDIV = setDIV;
+				elem.append(folder);
+				elem.append(setDIV);
+				folder.bind('click', function(){
+					this.setDIV.toggle();
+				});
+
+				return folder;
+			}
 
 			function itemClicked() {
 				if (selected) {
@@ -212,10 +259,6 @@
 				selected = this;
 				$(this).css('background-color', '#232323');
 				$(this).css('color', 'rgb(230, 233, 240)');
-			}
-
-			function importJSON() {
-				//import docs from json
 			}
 
 			function windowResize() {

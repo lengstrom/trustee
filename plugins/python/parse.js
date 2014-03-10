@@ -2,8 +2,13 @@ var fs = require('fs');
 var htmlparser = require('htmlparser2');
 
 var pyDocs = {
+	info: {
+		pages:'pages',
+		name:'Python 2.7',
+		source:'python/python-2.7.5-docs-html/'
+	},
 	pages: {}, //store each url's objects
-	cumulative: { //every object, cumulatively
+	docs: { //every object, docsly
 		modules: [],
 		classes: [],
 		exceptions: [],
@@ -16,42 +21,42 @@ var pyDocs = {
 
 function parseException(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].exceptions.push({name:tempData.class + tempData.desc, href:bhref + href});
+	pyDocs.pages[bhref].exceptions.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseClass(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].classes.push({name:tempData.class + tempData.desc, href:bhref + href});
+	pyDocs.pages[bhref].classes.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseFunction(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].functions.push({name:tempData.class + tempData.desc, href:bhref + href});
+	pyDocs.pages[bhref].functions.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseMethod(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].methods.push({name:tempData.class + tempData.desc, href:bhref + href});
+	pyDocs.pages[bhref].methods.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseConstant(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].constants.push({name:tempData.class + tempData.desc, href:bhref + href});
+	pyDocs.pages[bhref].constants.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseAttribute(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].attributes.push({name:tempData.class + tempData.desc, href:bhref + href});
+	pyDocs.pages[bhref].attributes.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseModule(bhref, href, name) {
-	pyDocs.pages[bhref].modules.push({name:name, href:bhref + href});
+	pyDocs.pages[bhref].modules.push([name, bhref + href]);
 	return true;
 }
 
@@ -69,7 +74,6 @@ var namesParser = new htmlparser.Parser({
 		}
 		else if (name == 'a' && attribs.class == 'headerlink' && attribs.href.substring(0,7) == '#module') {
 			parseModule(this.bhref, attribs.href, attribs.href.substring(8,attribs.href.length));
-			console.log(attribs.href.substring(8,attribs.href.length));
 		}
 		else {
 			if (this.depth !== undefined) {
@@ -161,7 +165,7 @@ var namesParser = new htmlparser.Parser({
 				this.tempData.desc = text;
 			}
 			else if (this.textReason == 'module') {
-				if (text == this.module.name) {
+				if (text == this.module[0]) {
 					this.depth = undefined;
 					this.tempData = {};
 					this.cType = -1;
@@ -223,64 +227,64 @@ function docIndexRead(err, files) {
 		pyDocs.pages[i].exceptions.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].exceptions) {
-			pyDocs.cumulative.exceptions.push({name:pyDocs.pages[i].exceptions[j].name, href:pyDocs.pages[i].exceptions[j].href});
+			pyDocs.docs.exceptions.push([pyDocs.pages[i].exceptions[j][0], pyDocs.pages[i].exceptions[j][1]]);
 		}
 
 		pyDocs.pages[i].classes.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].classes) {
-			pyDocs.cumulative.classes.push({name:pyDocs.pages[i].classes[j].name, href:pyDocs.pages[i].classes[j].href});
+			pyDocs.docs.classes.push([pyDocs.pages[i].classes[j][0], pyDocs.pages[i].classes[j][1]]);
 		}
 		
 		pyDocs.pages[i].functions.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].functions) {
-			pyDocs.cumulative.functions.push({name:pyDocs.pages[i].functions[j].name, href:pyDocs.pages[i].functions[j].href});
+			pyDocs.docs.functions.push([pyDocs.pages[i].functions[j][0], pyDocs.pages[i].functions[j][1]]);
 		}
 		
 		pyDocs.pages[i].methods.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].methods) {
-			pyDocs.cumulative.methods.push({name:pyDocs.pages[i].methods[j].name, href:pyDocs.pages[i].methods[j].href});
+			pyDocs.docs.methods.push([pyDocs.pages[i].methods[j][0], pyDocs.pages[i].methods[j][1]]);
 		}
 		
 		pyDocs.pages[i].constants.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].constants) {
-			pyDocs.cumulative.constants.push({name:pyDocs.pages[i].constants[j].name, href:pyDocs.pages[i].constants[j].href});
+			pyDocs.docs.constants.push([pyDocs.pages[i].constants[j][0], pyDocs.pages[i].constants[j][1]]);
 		}
 		
 		pyDocs.pages[i].attributes.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].attributes) {
-			pyDocs.cumulative.attributes.push({name:pyDocs.pages[i].attributes[j].name, href:pyDocs.pages[i].attributes[j].href});
+			pyDocs.docs.attributes.push([pyDocs.pages[i].attributes[j][0], pyDocs.pages[i].attributes[j][1]]);
 		}
 		
 		pyDocs.pages[i].modules.sort(alphabeticallySort);
 
 		for (j in pyDocs.pages[i].modules) {
-			pyDocs.cumulative.modules.push({name:pyDocs.pages[i].modules[j].name, href:pyDocs.pages[i].modules[j].href});
+			pyDocs.docs.modules.push([pyDocs.pages[i].modules[j][0], pyDocs.pages[i].modules[j][1]]);
 		}
 	}
 
-	pyDocs.cumulative.exceptions.sort(alphabeticallySort);
+	pyDocs.docs.exceptions.sort(alphabeticallySort);
 
-	pyDocs.cumulative.classes.sort(alphabeticallySort);
+	pyDocs.docs.classes.sort(alphabeticallySort);
 
-	pyDocs.cumulative.functions.sort(alphabeticallySort);
+	pyDocs.docs.functions.sort(alphabeticallySort);
 
-	pyDocs.cumulative.methods.sort(alphabeticallySort);
+	pyDocs.docs.methods.sort(alphabeticallySort);
 
-	pyDocs.cumulative.constants.sort(alphabeticallySort);
+	pyDocs.docs.constants.sort(alphabeticallySort);
 
-	pyDocs.cumulative.attributes.sort(alphabeticallySort);
+	pyDocs.docs.attributes.sort(alphabeticallySort);
 
 	fs.writeFileSync(__dirname + '/output/pyDocs.json', JSON.stringify(pyDocs));
 }
 
 function alphabeticallySort(a,b){
-	if (a.name < b.name) return -1;
-	if (a.name > b.name) return 1;
+	if (a[0] < b[0]) return -1;
+	if (a[0] > b[0]) return 1;
 	return 0;
 }
 
