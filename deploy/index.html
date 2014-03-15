@@ -113,8 +113,12 @@
 				width:calc(100% + 6px);
 			}
 
-			.itemText {
+			.itemInner {
 				cursor:pointer;
+			}
+
+			.itemText {
+				margin-left: 18px;
 			}
 
 			.i0 {
@@ -196,16 +200,23 @@
 				var items = [];
 				var docsHeader = $('<div>', {class:'itemBar folder'});
 				var folderImg = $('<img>', {src:"img/folder-open.png"});
-				var folderTitle = $('<span>', {class: 'itemText i0', text:json.info.name})
+				var iconImg = $('<img>', {src:'/plugins/' + json.info.icons.path + json.info.icons.mainIcon});
+				iconImg.css('height', '16px')
+    			iconImg.css('position','absolute');
+    			iconImg.css('bottom','0');
+				var folderTitle = $('<span>', {class: 'itemInner i0'})
+				var folderText = $('<span>', {class: 'itemText', text:json.info.name})
 				docsHeader.append(folderTitle);
 				docsHeader[0].folderImg = folderImg;
-				folderTitle.prepend(folderImg)
+				folderTitle.prepend(iconImg);
+				folderTitle.prepend(folderImg);
+				folderTitle.append(folderText);
 				var setDIV = $('<div>');
 				for (var i in json.docs) {
 					if (i !== json.info.pages) {
 						var htmlToAppend = '';
 						for (var j in json.docs[i]) {
-							htmlToAppend = htmlToAppend + "<div class = 'itemBar selectable' onclick=\"setFrameURL('" + path + json.docs[i][j][1] + "')\"><span class = 'itemText i2'>" + json.docs[i][j][0] + "</span></div>";
+							htmlToAppend = htmlToAppend + "<div class = 'itemBar selectable' onclick=\"setFrameURL('" + path + json.docs[i][j][1] + "')\"><span class = 'itemInner i2'>" + json.docs[i][j][0] + "</span></div>";
 						}
 						addFolder(i, 1, setDIV, htmlToAppend);
 					}
@@ -227,8 +238,10 @@
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
 				var folderImg = $('<img>', {src:"img/folder-closed.png"});
+				var folderText = $('<span>', {class: 'itemText', text:name})
 				folderImg.css('margin-top', '1px');
-				var folderTitle = $('<span>', {class: 'itemText i1', text:name})
+				var folderTitle = $('<span>', {class: 'itemInner i1'})
+				folderTitle.append(folderText);
 				if (innerHTML) {
 					setDIV.html(innerHTML);
 				}

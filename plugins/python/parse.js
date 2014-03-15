@@ -6,7 +6,19 @@ var pyDocs = {
 		pages:'pages',
 		name:'Python 2.7',
 		source:'python/python-2.7.5-docs-html/',
-		icons:'python/resources/'
+		icons: {
+			path:'python/resources/',
+			mainIcon:'python-logo.png',
+			docsIcons: {
+				modules: '',
+				classes: '',
+				exceptions: '',
+				methods: '',
+				functions: '',
+				attributes: '',
+				constants: ''
+			}
+		}
 	},
 	pages: {}, //store each url's objects
 	docs: { //every object, docsly
