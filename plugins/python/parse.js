@@ -6,70 +6,71 @@ var pyDocs = {
 		pages:'pages',
 		name:'Python 2.7',
 		source:'python/python-2.7.5-docs-html/',
-		icons: {
+		icons: { //if left empty, then use default ones
 			path:'python/resources/',
 			mainIcon:'python-logo.png',
 			docsIcons: {
-				modules: '',
-				classes: '',
-				exceptions: '',
-				methods: '',
-				functions: '',
-				attributes: '',
-				constants: ''
+				//if it is blank, assume that it is from one of the defaults ie modules ""
+				Modules: 'Module.png',
+				Classes: 'Class.png',
+				Exceptions: 'Exception.png',
+				Methods: 'ClassMethod.png',
+				Functions: 'Function.png',
+				Attributes: 'Attribute.png',
+				Constants: 'Const.png'
 			}
 		}
 	},
 	pages: {}, //store each url's objects
 	docs: { //every object, docsly
-		modules: [],
-		classes: [],
-		exceptions: [],
-		methods: [],
-		functions: [],
-		attributes: [],
-		constants: []
+		Modules: [],
+		Classes: [],
+		Exceptions: [],
+		Methods: [],
+		Functions: [],
+		Attributes: [],
+		Constants: []
 	}
 };
 
 function parseException(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].exceptions.push([tempData.class + tempData.desc, bhref + href]);
+	pyDocs.pages[bhref].Exceptions.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseClass(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].classes.push([tempData.class + tempData.desc, bhref + href]);
+	pyDocs.pages[bhref].Classes.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseFunction(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].functions.push([tempData.class + tempData.desc, bhref + href]);
+	pyDocs.pages[bhref].Functions.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseMethod(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].methods.push([tempData.class + tempData.desc, bhref + href]);
+	pyDocs.pages[bhref].Methods.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseConstant(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].constants.push([tempData.class + tempData.desc, bhref + href]);
+	pyDocs.pages[bhref].Constants.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseAttribute(bhref, href, tempData) {
 	if (tempData.class === undefined) tempData.class = '';
-	pyDocs.pages[bhref].attributes.push([tempData.class + tempData.desc, bhref + href]);
+	pyDocs.pages[bhref].Attributes.push([tempData.class + tempData.desc, bhref + href]);
 	return true;
 }
 
 function parseModule(bhref, href, name) {
-	pyDocs.pages[bhref].modules.push([name, bhref + href]);
+	pyDocs.pages[bhref].Modules.push([name, bhref + href]);
 	return true;
 }
 
@@ -205,24 +206,24 @@ function docIndexRead(err, files) {
 	}
 
 	pyDocs.pages['distutils/apiref.html'] = {
-		exceptions:[],
-		classes:[],
-		functions:[],
-		methods:[],
-		constants:[],
-		attributes:[],
-		modules:[]
+		Exceptions:[],
+		Classes:[],
+		Functions:[],
+		Methods:[],
+		Constants:[],
+		Attributes:[],
+		Modules:[]
 	}; //disutils are irregular
 	
 	for (var i in files) {
 		pyDocs.pages['library/' + files[i]] = {
-			exceptions:[],
-			classes:[],
-			functions:[],
-			methods:[],
-			constants:[],
-			attributes:[],
-			modules:[]
+			Exceptions:[],
+			Classes:[],
+			Functions:[],
+			Methods:[],
+			Constants:[],
+			Attributes:[],
+			Modules:[]
 		};
 	}
 
@@ -237,67 +238,69 @@ function docIndexRead(err, files) {
 
 	var j;
 	for (var i in pyDocs.pages) {
-		pyDocs.pages[i].exceptions.sort(alphabeticallySort);
+		pyDocs.pages[i].Exceptions.sort(alphabeticallySort);
 
-		for (j in pyDocs.pages[i].exceptions) {
-			pyDocs.docs.exceptions.push([pyDocs.pages[i].exceptions[j][0], pyDocs.pages[i].exceptions[j][1]]);
+		for (j in pyDocs.pages[i].Exceptions) {
+			pyDocs.docs.Exceptions.push([pyDocs.pages[i].Exceptions[j][0], pyDocs.pages[i].Exceptions[j][1]]);
 		}
 
-		pyDocs.pages[i].classes.sort(alphabeticallySort);
+		pyDocs.pages[i].Classes.sort(alphabeticallySort);
 
-		for (j in pyDocs.pages[i].classes) {
-			pyDocs.docs.classes.push([pyDocs.pages[i].classes[j][0], pyDocs.pages[i].classes[j][1]]);
-		}
-		
-		pyDocs.pages[i].functions.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].functions) {
-			pyDocs.docs.functions.push([pyDocs.pages[i].functions[j][0], pyDocs.pages[i].functions[j][1]]);
+		for (j in pyDocs.pages[i].Classes) {
+			pyDocs.docs.Classes.push([pyDocs.pages[i].Classes[j][0], pyDocs.pages[i].Classes[j][1]]);
 		}
 		
-		pyDocs.pages[i].methods.sort(alphabeticallySort);
+		pyDocs.pages[i].Functions.sort(alphabeticallySort);
 
-		for (j in pyDocs.pages[i].methods) {
-			pyDocs.docs.methods.push([pyDocs.pages[i].methods[j][0], pyDocs.pages[i].methods[j][1]]);
+		for (j in pyDocs.pages[i].Functions) {
+			pyDocs.docs.Functions.push([pyDocs.pages[i].Functions[j][0], pyDocs.pages[i].Functions[j][1]]);
 		}
 		
-		pyDocs.pages[i].constants.sort(alphabeticallySort);
+		pyDocs.pages[i].Methods.sort(alphabeticallySort);
 
-		for (j in pyDocs.pages[i].constants) {
-			pyDocs.docs.constants.push([pyDocs.pages[i].constants[j][0], pyDocs.pages[i].constants[j][1]]);
+		for (j in pyDocs.pages[i].Methods) {
+			pyDocs.docs.Methods.push([pyDocs.pages[i].Methods[j][0], pyDocs.pages[i].Methods[j][1]]);
 		}
 		
-		pyDocs.pages[i].attributes.sort(alphabeticallySort);
+		pyDocs.pages[i].Constants.sort(alphabeticallySort);
 
-		for (j in pyDocs.pages[i].attributes) {
-			pyDocs.docs.attributes.push([pyDocs.pages[i].attributes[j][0], pyDocs.pages[i].attributes[j][1]]);
+		for (j in pyDocs.pages[i].Constants) {
+			pyDocs.docs.Constants.push([pyDocs.pages[i].Constants[j][0], pyDocs.pages[i].Constants[j][1]]);
 		}
 		
-		pyDocs.pages[i].modules.sort(alphabeticallySort);
+		pyDocs.pages[i].Attributes.sort(alphabeticallySort);
 
-		for (j in pyDocs.pages[i].modules) {
-			pyDocs.docs.modules.push([pyDocs.pages[i].modules[j][0], pyDocs.pages[i].modules[j][1]]);
+		for (j in pyDocs.pages[i].Attributes) {
+			pyDocs.docs.Attributes.push([pyDocs.pages[i].Attributes[j][0], pyDocs.pages[i].Attributes[j][1]]);
+		}
+		
+		pyDocs.pages[i].Modules.sort(alphabeticallySort);
+
+		for (j in pyDocs.pages[i].Modules) {
+			pyDocs.docs.Modules.push([pyDocs.pages[i].Modules[j][0], pyDocs.pages[i].Modules[j][1]]);
 		}
 	}
 
-	pyDocs.docs.exceptions.sort(alphabeticallySort);
+	pyDocs.docs.Exceptions.sort(alphabeticallySort);
 
-	pyDocs.docs.classes.sort(alphabeticallySort);
+	pyDocs.docs.Classes.sort(alphabeticallySort);
 
-	pyDocs.docs.functions.sort(alphabeticallySort);
+	pyDocs.docs.Functions.sort(alphabeticallySort);
 
-	pyDocs.docs.methods.sort(alphabeticallySort);
+	pyDocs.docs.Methods.sort(alphabeticallySort);
 
-	pyDocs.docs.constants.sort(alphabeticallySort);
+	pyDocs.docs.Constants.sort(alphabeticallySort);
 
-	pyDocs.docs.attributes.sort(alphabeticallySort);
+	pyDocs.docs.Attributes.sort(alphabeticallySort);
 
 	fs.readFileSync(__dirname + "/python-2.7.5-docs-html/_static/sidebar.js").toString().split('\n').forEach(function (line) {
 		if (line.toString() == '  set_position_from_cookie();') {
 			fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n  collapse_sidebar();" + "\n");
 		}
 		else {
-			fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n");
+			if (line.toString() !== '  collapse_sidebar();') {
+				fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n");
+			}
 		}
 	});
 	fs.renameSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", __dirname + "/python-2.7.5-docs-html/_static/sidebar.js");

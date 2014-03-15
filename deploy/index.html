@@ -23,6 +23,21 @@
 				overflow-y:scroll;
 			}
 
+			.iconImg {
+				height:16px;
+				width:16px;
+				position:absolute;
+				bottom:0;
+			}
+
+			.iconImgObject {
+				height:16px;
+				width:16px;
+				margin-left:16px;
+				position:absolute;
+				bottom:2.5px;
+			}
+
 			.searchbarCont {
 				z-index: 3;
 				background-color:rgb(230, 233, 240);
@@ -121,6 +136,10 @@
 				margin-left: 18px;
 			}
 
+			.itemTextObject {
+				margin-left: 34px;
+			}
+
 			.i0 {
 				margin-left: 12px; /*12 + 18 * level px */
 			}
@@ -200,10 +219,7 @@
 				var items = [];
 				var docsHeader = $('<div>', {class:'itemBar folder'});
 				var folderImg = $('<img>', {src:"img/folder-open.png"});
-				var iconImg = $('<img>', {src:'/plugins/' + json.info.icons.path + json.info.icons.mainIcon});
-				iconImg.css('height', '16px')
-    			iconImg.css('position','absolute');
-    			iconImg.css('bottom','0');
+				var iconImg = $('<img>', {src:'/plugins/' + json.info.icons.path + json.info.icons.mainIcon, class:'iconImg'});
 				var folderTitle = $('<span>', {class: 'itemInner i0'})
 				var folderText = $('<span>', {class: 'itemText', text:json.info.name})
 				docsHeader.append(folderTitle);
@@ -213,12 +229,14 @@
 				folderTitle.append(folderText);
 				var setDIV = $('<div>');
 				for (var i in json.docs) {
+					var src = json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i];
 					if (i !== json.info.pages) {
-						var htmlToAppend = '';
+						var objectsToAppend = [];
 						for (var j in json.docs[i]) {
-							htmlToAppend = htmlToAppend + "<div class = 'itemBar selectable' onclick=\"setFrameURL('" + path + json.docs[i][j][1] + "')\"><span class = 'itemInner i2'>" + json.docs[i][j][0] + "</span></div>";
+							objectsToAppend.push(makeItem(json.docs[i][j][0], path + json.docs[i][j][1], src));
 						}
-						addFolder(i, 1, setDIV, htmlToAppend);
+						addFolder(i, 1, setDIV, src, objectsToAppend);
+						debugger;
 					}
 				}
 				$('#tree').append(docsHeader);
@@ -229,12 +247,32 @@
 					this.setDIV.toggle();
 				});
 				$('.selectable').bind('click', itemClicked);
-				setDIV.children('.folder').each(function(key, value){
+				setDIV.children('.folder').each(function(key, value) {
 					value.setDIV.toggle();
 				});
 			}
 
-			function addFolder(name, indentationLevel, elem, innerHTML) {
+			function makeItem(text, itemURL, imgPath) {
+				var cont = $('<div>', {class:'itemBar selectable'});
+				cont[0].itemURL = itemURL;
+				cont.bind('click', function () {
+					setFrameURL(this.itemURL);
+				});
+
+				var innerCont = $('<span>', {class: 'itemInner i2'});
+				cont.append(innerCont);
+
+				var iconImg = $('<img>', {class:'iconImgObject', src:imgPath})
+				innerCont.prepend(iconImg);
+
+				var desc = $('<span>', {class:'itemTextObject', text:text});
+				innerCont.append(desc);
+
+				return cont;
+
+			}
+
+			function addFolder(name, indentationLevel, elem, imgPath, inner) {
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
 				var folderImg = $('<img>', {src:"img/folder-closed.png"});
@@ -242,9 +280,15 @@
 				folderImg.css('margin-top', '1px');
 				var folderTitle = $('<span>', {class: 'itemInner i1'})
 				folderTitle.append(folderText);
-				if (innerHTML) {
-					setDIV.html(innerHTML);
+				if (inner) {
+					for (var i = 0; i < inner.length; i++) {
+						setDIV.append(inner[i]);
+					}
 				}
+
+				var iconImg = $('<img>', {src:imgPath, class:'iconImg'});
+		
+				folderTitle.prepend(iconImg);
 
 				folder[0].setDIV = setDIV;
 				folder[0].folderImg = folderImg;
