@@ -5,7 +5,8 @@ var pyDocs = {
 	info: {
 		pages:'pages',
 		name:'Python 2.7',
-		source:'python/python-2.7.5-docs-html/'
+		source:'python/python-2.7.5-docs-html/',
+		icons:'python/resources/'
 	},
 	pages: {}, //store each url's objects
 	docs: { //every object, docsly
@@ -279,6 +280,15 @@ function docIndexRead(err, files) {
 
 	pyDocs.docs.attributes.sort(alphabeticallySort);
 
+	fs.readFileSync(__dirname + "/python-2.7.5-docs-html/_static/sidebar.js").toString().split('\n').forEach(function (line) {
+		if (line.toString() == '  set_position_from_cookie();') {
+			fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n  collapse_sidebar();" + "\n");
+		}
+		else {
+			fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n");
+		}
+	});
+	fs.renameSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", __dirname + "/python-2.7.5-docs-html/_static/sidebar.js");
 	fs.writeFileSync(__dirname + '/output/pyDocs.json', JSON.stringify(pyDocs));
 }
 

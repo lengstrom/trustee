@@ -24,12 +24,9 @@
 			}
 
 			.searchbarCont {
-				position:relative;
+				z-index: 3;
+				background-color:rgb(230, 233, 240);
 				border-bottom:1px #232323 solid;
-				width:-moz-calc(100% + 6px);
-				width:-webkit-calc(100% + 6px);
-				width:-o-calc(100% + 6px);
-				width:calc(100% + 6px);
 			}
 
 			#search:focus {
@@ -144,8 +141,8 @@
 	</head>
 	<body>
 		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;padding:0;width:250px;height:100%;'>
-			<div class = 'searchbarCont'>
-				<!-- <div style = 'overflow:hidden;'>
+			<div class = 'searchbarCont' style ='position:fixed;'>
+				<div style = 'overflow:hidden;'>
 					<div class = 'loadbar' style='left:-60px;'></div>
 					<div class = 'loadbar' style='left:0px;'></div>
 					<div class = 'loadbar' style='left:60px;'></div>
@@ -158,9 +155,10 @@
 					<div class = 'loadbar' style='left:480px;'></div>
 					<div class = 'loadbar' style='left:540px;'></div>
 					<div class = 'loadbar' style='left:600px;'></div>
-				</div> -->
+				</div>
 				<input type='text' id = 'search' placeholder='Search docs'/>
 			</div>
+			<div style = 'position:relative;height:57px;'></div>
 			<div id = 'tree'></div>
 		</div>
 		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;padding:0;margin:0;width:6px;height:100%;cursor:ew-resize;'>
@@ -182,6 +180,7 @@
 			$(window).bind('mouseup', separatorMouseUp);
 			$(window).resize(windowResize);
 			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
+			$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 
 			stopSearchbarLoadingAnim();
 			var selected;
@@ -196,7 +195,11 @@
 				var pages = json.info.pages;
 				var items = [];
 				var docsHeader = $('<div>', {class:'itemBar folder'});
-				docsHeader.html('<span class = "itemText i0">' + json.info.name + '</span>');
+				var folderImg = $('<img>', {src:"img/folder-open.png"});
+				var folderTitle = $('<span>', {class: 'itemText i0', text:json.info.name})
+				docsHeader.append(folderTitle);
+				docsHeader[0].folderImg = folderImg;
+				folderTitle.prepend(folderImg)
 				var setDIV = $('<div>');
 				for (var i in json.docs) {
 					if (i !== json.info.pages) {
@@ -204,7 +207,6 @@
 						for (var j in json.docs[i]) {
 							htmlToAppend = htmlToAppend + "<div class = 'itemBar selectable' onclick=\"setFrameURL('" + path + json.docs[i][j][1] + "')\"><span class = 'itemText i2'>" + json.docs[i][j][0] + "</span></div>";
 						}
-
 						addFolder(i, 1, setDIV, htmlToAppend);
 					}
 				}
@@ -212,6 +214,7 @@
 				$('#tree').append(setDIV);
 				docsHeader[0].setDIV = setDIV;
 				docsHeader.bind('click', function(){
+					this.folderImg.attr('src', this.folderImg.attr('src') == 'img/folder-closed.png' ? 'img/folder-open.png' : 'img/folder-closed.png');
 					this.setDIV.toggle();
 				});
 				$('.selectable').bind('click', itemClicked);
@@ -223,15 +226,23 @@
 			function addFolder(name, indentationLevel, elem, innerHTML) {
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
-				folder.html('<span class = "itemText i1">' + name + '</span>')
+				var folderImg = $('<img>', {src:"img/folder-closed.png"});
+				folderImg.css('margin-top', '1px');
+				var folderTitle = $('<span>', {class: 'itemText i1', text:name})
 				if (innerHTML) {
 					setDIV.html(innerHTML);
 				}
 
 				folder[0].setDIV = setDIV;
+				folder[0].folderImg = folderImg;
+				folder.append(folderTitle);
+				folderTitle.prepend(folderImg)
 				elem.append(folder);
 				elem.append(setDIV);
+				folderTitle.prepend(folderImg);
+
 				folder.bind('click', function(){
+					this.folderImg.attr('src', this.folderImg.attr('src') == 'img/folder-closed.png' ? 'img/folder-open.png' : 'img/folder-closed.png');
 					this.setDIV.toggle();
 				});
 
@@ -255,6 +266,7 @@
 			function separatorMove(e) {
 				if (e.clientX < 150) { //set minimum width of left column to 150px
 					$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
+					$('.searchbarCont').css('width, 140px');
 					$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
@@ -266,11 +278,13 @@
 
 				if (parseInt($(window).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
 					$('#lcol').css('width', parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+					$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 					$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
 
 				$('#lcol').css('width', e.clientX - 3 + 'px');
+				$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 				$('#rcol').css('width', parseInt($(window).width(), 10) - e.clientX - 3 + 'px');
 			}
 

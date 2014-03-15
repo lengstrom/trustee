@@ -98,7 +98,7 @@ body {
 }
 
 #search {
-	position:relative;
+	position:fixed;
 	padding:2px;
 	padding-left:4px;
 	height:30px;
@@ -150,7 +150,7 @@ body {
 
 .searchbarCont {
 	overflow:hidden;
-	position:relative;
+	position:fixed;
 	border-bottom:1px #DEDEDE solid;
 	border-right:1px #DEDEDE solid;
 }
