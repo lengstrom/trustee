@@ -182,9 +182,13 @@
 				<input type='text' id = 'search' placeholder='Search docs'/>
 			</div>
 			<div style = 'position:relative;height:57px;'></div>
-			<div id = 'tree'></div>
+			<div id = 'tree'>
+				<div style = 'position;relative; height:9px;'></div>
+			</div>
 		</div>
 		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;padding:0;margin:0;width:6px;height:100%;cursor:ew-resize;'>
+			<div style = 'width:6px;height:100%;position:absolute; border-right:#000 1px solid;'>
+			</div>
 			<div style = 'position:relative;height:56px;border-bottom: 1px solid #000; margin:0; padding: 0;width:100%;'></div>
 		</div>
 		<div id = 'rcol' style = 'position:relative;float:left;margin:0;width:400px;height:100%;'>
@@ -249,6 +253,7 @@
 				setDIV.children('.folder').each(function(key, value) {
 					value.setDIV.toggle();
 				});
+				setDIV.toggle();
 			}
 
 			function makeItem(text, itemURL, imgPath) {
