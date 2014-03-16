@@ -371,8 +371,9 @@
 
 			function separatorMove(e) {
 				if (e.clientX < 150) { //set minimum width of left column to 150px
+					debugger;
 					$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
-					$('.searchbarCont').css('width, 140px');
+					$('.searchbarCont').css('width' , '140px');
 					$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 					return;
 				}
