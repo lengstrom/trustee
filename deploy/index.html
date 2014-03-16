@@ -216,18 +216,16 @@
 			$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 
 			stopSearchbarLoadingAnim();
-			var selected;
+			var Trustee = {
+				selected:undefined,
+				docs: {}
+			};
 
-			// $.get('/plugins/python/output/pyDocs.json', function(d){
-			// 	importJSON(JSON.parse(d));
-			// });
-			jQuery.ajax({
-				url:'/plugins/python/output/pyDocs.json',
-				async:true,
-				success:function(d) {
-					importJSON(JSON.parse(d));
-				}
-			});   
+			$.get('/plugins/python/output/pyDocs.json', function(d){
+				var pd = JSON.parse(d);
+				importJSON(pd);
+				Trustee.docs[pd.info.name] = pd;
+			});
 
 			function importJSON(json) {
 				//import docs from json
@@ -360,12 +358,12 @@
 			}
 
 			function itemClicked() {
-				if (selected) {
-					$(selected).css('background-color', 'rgb(230, 233, 240)');
-					$(selected).css('color', '#232323');
+				if (Trustee.selected) {
+					$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
+					$(Trustee.selected).css('color', '#232323');
 				}
 				
-				selected = this;
+				Trustee.selected = this;
 				$(this).css('background-color', '#232323');
 				$(this).css('color', 'rgb(230, 233, 240)');
 			}
