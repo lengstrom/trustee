@@ -135,6 +135,24 @@ body {
 	animation: load 1s infinite linear;
 }
 
+.loadbarTree {
+	height:140%;
+	left:30px;
+	top:-12px;
+	/*ie 9+, opera, etc work fine */
+	-webkit-transform:rotate(30deg);
+	-moz-transform:rotate(30deg);
+	-o-transform:rotate(30deg);
+	-ms-transform:rotate(30deg);
+	transform:rotate(30deg);
+	width:20px;
+	background-color: #DEDEDE;
+	position:absolute;
+	-moz-animation: load 1s infinite linear;
+	-webkit-animation: load 1s infinite linear;
+	animation: load 1s infinite linear;
+}
+
 #docs {
 	margin-left:5px;
 }

@@ -23,6 +23,10 @@
 				overflow-y:scroll;
 			}
 
+			#tree {
+				height:100%;
+			}
+
 			.iconImg {
 				height:16px;
 				width:16px;
@@ -65,6 +69,24 @@
 				margin-top:13px;
 				margin-bottom: 13px;
 				font-size: 9pt;
+			}
+
+			.loadbarTree {
+				height:140%;
+				/*left:-0px;*/
+				top:-12px;
+				/*ie 9+, opera, etc work fine */
+				-webkit-transform:rotate(30deg);
+				-moz-transform:rotate(30deg);
+				-o-transform:rotate(30deg);
+				-ms-transform:rotate(30deg);
+				transform:rotate(30deg);
+				width:20px;
+				background-color: #DEDEDE;
+				position:absolute;
+				-moz-animation: load 1s infinite linear;
+				-webkit-animation: load 1s infinite linear;
+				animation: load 1s infinite linear;
 			}
 
 			.loadbar {
@@ -212,9 +234,16 @@
 			stopSearchbarLoadingAnim();
 			var selected;
 
-			$.get('/plugins/python/output/pyDocs.json', function(d){
-				importJSON(JSON.parse(d));
-			});
+			// $.get('/plugins/python/output/pyDocs.json', function(d){
+			// 	importJSON(JSON.parse(d));
+			// });
+			jQuery.ajax({
+				url:'/plugins/python/output/pyDocs.json',
+				async:true,
+				success:function(d) {
+					importJSON(JSON.parse(d));
+				}
+			});   
 
 			function importJSON(json) {
 				//import docs from json
@@ -232,32 +261,34 @@
 				folderTitle.prepend(folderImg);
 				folderTitle.append(folderText);
 				var setDIV = $('<div>');
+				setTimeout(function(){
+					$('#tree').append(docsHeader);
+					$('#tree').append(setDIV);
+				}, 6);
 				for (var i in json.docs) {
-					var src = json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i];
-					if (i !== json.info.pages) {
-						var objectsToAppend = [];
-						for (var j in json.docs[i]) {
-							objectsToAppend.push(makeItem(json.docs[i][j][0], path + json.docs[i][j][1], src));
-						}
-						addFolder(i, 1, setDIV, src, objectsToAppend);
-					}
+					setTimeout(makeFolderComplex(json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i], json.info.pages, json.docs[i], i, setDIV, path), 6);
 				}
-				$('#tree').append(docsHeader);
-				$('#tree').append(setDIV);
 				docsHeader[0].setDIV = setDIV;
-				docsHeader.bind('click', function(){
+				docsHeader.bind('click', function() {
 					this.folderImg.attr('src', this.folderImg.attr('src') == 'img/folder-closed.png' ? 'img/folder-open.png' : 'img/folder-closed.png');
 					this.setDIV.toggle();
 				});
-				$('.selectable').bind('click', itemClicked);
-				setDIV.children('.folder').each(function(key, value) {
-					value.setDIV.toggle();
-				});
-				setDIV.toggle();
+			}
+
+			function makeFolderComplex(src, pages, jdi, i, setDIV, path) {
+				if (i !== pages) {
+					var objectsToAppend = [];
+					for (var j in jdi) {
+						objectsToAppend.push(makeItem(jdi[j][0], path + jdi[j][1], src));
+					}
+
+					addFolder(i, 1, setDIV, src, objectsToAppend);
+				}
 			}
 
 			function makeItem(text, itemURL, imgPath) {
 				var cont = $('<div>', {class:'itemBar selectable'});
+				$(cont).bind('click', itemClicked);
 				cont[0].itemURL = itemURL;
 				cont.bind('click', function () {
 					setFrameURL(this.itemURL);
@@ -273,7 +304,6 @@
 				innerCont.append(desc);
 
 				return cont;
-
 			}
 
 			function addFolder(name, indentationLevel, elem, imgPath, inner) {
@@ -307,14 +337,17 @@
 					this.setDIV.toggle();
 				});
 
+				setDIV.hide();
+
 				return folder;
 			}
 
 			function itemClicked() {
 				if (selected) {
-					$(selected).css('background-color', 'rgb(230, 233, 240)');
+					$(selected).css('background-color', 'rgba(230, 233, 240, .1)');
 					$(selected).css('color', '#232323');
 				}
+				
 				selected = this;
 				$(this).css('background-color', '#232323');
 				$(this).css('color', 'rgb(230, 233, 240)');
@@ -379,6 +412,9 @@
 					document.getElementById('display').src = url;
 				}
 			}
+
+			//search capabilities
+
 		</script>
 	</body>
 </html>
