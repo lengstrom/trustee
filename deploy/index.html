@@ -197,6 +197,7 @@
 		</div>
 
 		<script type='text/javascript' src='js/jquery.js'></script>
+		<script type='text/javascript' src='js/spin.min.js'></script>
 		<script type="text/javascript">
 			$('#separator').bind('mousedown', function(e) {
 				document.body.style.cursor = 'ew-resize';
@@ -225,6 +226,24 @@
 
 			function importJSON(json) {
 				//import docs from json
+				var opts = {
+					lines: 10, // The number of lines to draw
+					length: 5, // The length of each line
+					width: 3, // The line thickness
+					radius: 3, // The radius of the inner circle
+					corners: 2, // Corner roundness (0..1)
+					rotate: 0, // The rotation offset
+					direction: 1, // 1: clockwise, -1: counterclockwise
+					speed: 1, // Rounds per second
+					trail: 60, // Afterglow percentage
+					shadow: false, // Whether to render a shadow
+					hwaccel: false, // Whether to use hardware acceleration
+					className: 'spinner', // The CSS class to assign to the spinner
+					zIndex: 2e9, // The z-index (defaults to 2000000000)
+					top: 'auto', // Top position relative to parent in px
+					left: 'auto' // Left position relative to parent in px
+				};
+
 				var path = '/plugins/' + json.info.source;
 				var pages = json.info.pages;
 				var items = [];
@@ -238,13 +257,20 @@
 				folderTitle.prepend(iconImg);
 				folderTitle.prepend(folderImg);
 				folderTitle.append(folderText);
+				var spinner = new Spinner(opts).spin();
+				folderTitle[0].appendChild(spinner.el);
+				$(spinner.el).css('right', '17px');
+				$(spinner.el).css('bottom', '9px');
 				var setDIV = $('<div>');
-				setTimeout(function(){
-					$('#tree').append(docsHeader);
-					$('#tree').append(setDIV);
-				}, 6);
+				$('#tree').append(docsHeader);
+				$('#tree').append(setDIV);
+				var ct = 0;
 				for (var i in json.docs) {
-					setTimeout(makeFolderComplex(json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i], json.info.pages, json.docs[i], i, setDIV, path), 6);
+					ct++;
+				}
+				for (var i in json.docs) {
+					ct--;
+					makeFolderComplex(json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i], json.info.pages, json.docs[i], i, setDIV, path, ct, spinner);
 				}
 				docsHeader[0].setDIV = setDIV;
 				docsHeader.bind('click', function() {
@@ -253,15 +279,17 @@
 				});
 			}
 
-			function makeFolderComplex(src, pages, jdi, i, setDIV, path) {
-				if (i !== pages) {
-					var objectsToAppend = [];
-					for (var j in jdi) {
-						objectsToAppend.push(makeItem(jdi[j][0], path + jdi[j][1], src));
-					}
+			function makeFolderComplex(src, pages, jdi, i, setDIV, path, ct, spinner) {
+				setTimeout(function(){
+					if (i !== pages) {
+						var objectsToAppend = [];
+						for (var j in jdi) {
+							objectsToAppend.push(makeItem(jdi[j][0], path + jdi[j][1], src));
+						}
 
-					addFolder(i, 1, setDIV, src, objectsToAppend);
-				}
+						addFolder(i, 1, setDIV, src, objectsToAppend, ct, spinner);
+					}
+				}, 5)
 			}
 
 			function makeItem(text, itemURL, imgPath) {
@@ -284,7 +312,7 @@
 				return cont;
 			}
 
-			function addFolder(name, indentationLevel, elem, imgPath, inner) {
+			function addFolder(name, indentationLevel, elem, imgPath, inner, ct, spinner) {
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
 				var folderImg = $('<img>', {src:"img/folder-closed.png"});
@@ -317,12 +345,18 @@
 
 				setDIV.hide();
 
+				if (ct == 0) {
+					if (spinner) {
+						spinner.stop();
+					}
+				}
+
 				return folder;
 			}
 
 			function itemClicked() {
 				if (selected) {
-					$(selected).css('background-color', 'rgba(230, 233, 240, .1)');
+					$(selected).css('background-color', 'rgb(230, 233, 240)');
 					$(selected).css('color', '#232323');
 				}
 				
