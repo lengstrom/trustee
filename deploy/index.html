@@ -73,6 +73,7 @@
 			}
 
 			.loadbar {
+				visibility: hidden;
 				height:140%;
 				left:30px;
 				top:-12px;
@@ -227,8 +228,7 @@
 				Trustee.docs[pd.info.name] = pd;
 			});
 
-			function importJSON(json) {
-				//import docs from json
+			function makeCustomSpinner() {
 				var opts = {
 					lines: 10, // The number of lines to draw
 					length: 5, // The length of each line
@@ -247,6 +247,14 @@
 					left: 'auto' // Left position relative to parent in px
 				};
 
+				var spinner = new Spinner(opts).spin();
+				$(spinner.el).css('right', '17px');
+				$(spinner.el).css('bottom', '9px');
+				return spinner;
+			}
+
+			function importJSON(json) {
+				//import docs from json
 				var path = '/plugins/' + json.info.source;
 				var pages = json.info.pages;
 				var items = [];
@@ -260,21 +268,15 @@
 				folderTitle.prepend(iconImg);
 				folderTitle.prepend(folderImg);
 				folderTitle.append(folderText);
-				var spinner = new Spinner(opts).spin();
-				folderTitle[0].appendChild(spinner.el);
-				$(spinner.el).css('right', '17px');
-				$(spinner.el).css('bottom', '9px');
 				var setDIV = $('<div>');
 				$('#tree').append(docsHeader);
 				$('#tree').append(setDIV);
-				var ct = 0;
 				for (var i in json.docs) {
-					ct++;
+					// addFolder(name, indentationLevel, elem, imgPath, inner, ct, spinner);
+					var src = json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i];
+					addFolder(i, 1, setDIV, src, json.info.name, i, path);
 				}
-				for (var i in json.docs) {
-					ct--;
-					makeFolderComplex(json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i], json.info.pages, json.docs[i], i, setDIV, path, ct, spinner);
-				}
+
 				docsHeader[0].setDIV = setDIV;
 				docsHeader.bind('click', function() {
 					this.folderImg.attr('src', this.folderImg.attr('src') == 'img/folder-closed.png' ? 'img/folder-open.png' : 'img/folder-closed.png');
@@ -282,40 +284,39 @@
 				});
 			}
 
-			function makeFolderComplex(src, pages, jdi, i, setDIV, path, ct, spinner) {
+			function makeItemComplex(json, spinner, src, path, div) {
+				for (var j = 0; j < json.length; j++) {
+					var end = j == json.length - 1 ? 1 : 0;
+					makeItem(json[j][0], path + json[j][1], src, div, end, spinner);
+				}
+			}
+
+			function makeItem(text, itemURL, imgPath, div, end, spinner) {
 				setTimeout(function(){
-					if (i !== pages) {
-						var objectsToAppend = [];
-						for (var j in jdi) {
-							objectsToAppend.push(makeItem(jdi[j][0], path + jdi[j][1], src));
-						}
+					var cont = $('<div>', {class:'itemBar selectable'});
+					$(cont).bind('click', itemClicked);
+					cont[0].itemURL = itemURL;
+					cont.bind('click', function () {
+						setFrameURL(this.itemURL);
+					});
 
-						addFolder(i, 1, setDIV, src, objectsToAppend, ct, spinner);
+					var innerCont = $('<span>', {class: 'itemInner i2'});
+					cont.append(innerCont);
+
+					var iconImg = $('<img>', {class:'iconImgObject', src:imgPath})
+					innerCont.prepend(iconImg);
+
+					var desc = $('<span>', {class:'itemTextObject', text:text});
+					innerCont.append(desc);
+
+					div.append(cont);
+					if (end) {
+						spinner.stop();
 					}
-				}, 5)
+				}, 2);
 			}
 
-			function makeItem(text, itemURL, imgPath) {
-				var cont = $('<div>', {class:'itemBar selectable'});
-				$(cont).bind('click', itemClicked);
-				cont[0].itemURL = itemURL;
-				cont.bind('click', function () {
-					setFrameURL(this.itemURL);
-				});
-
-				var innerCont = $('<span>', {class: 'itemInner i2'});
-				cont.append(innerCont);
-
-				var iconImg = $('<img>', {class:'iconImgObject', src:imgPath})
-				innerCont.prepend(iconImg);
-
-				var desc = $('<span>', {class:'itemTextObject', text:text});
-				innerCont.append(desc);
-
-				return cont;
-			}
-
-			function addFolder(name, indentationLevel, elem, imgPath, inner, ct, spinner) {
+			function addFolder(name, indentationLevel, elem, imgPath, docSet, child, path) {
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
 				var folderImg = $('<img>', {src:"img/folder-closed.png"});
@@ -323,18 +324,16 @@
 				folderImg.css('margin-top', '1px');
 				var folderTitle = $('<span>', {class: 'itemInner i1'})
 				folderTitle.append(folderText);
-				if (inner) {
-					for (var i = 0; i < inner.length; i++) {
-						setDIV.append(inner[i]);
-					}
-				}
 
 				var iconImg = $('<img>', {src:imgPath, class:'iconImg'});
 		
 				folderTitle.prepend(iconImg);
 
 				folder[0].setDIV = setDIV;
+				folder[0].src = imgPath;
 				folder[0].folderImg = folderImg;
+				folder[0].path = path;
+				folder[0].rendered = 0;
 				folder.append(folderTitle);
 				folderTitle.prepend(folderImg)
 				elem.append(folder);
@@ -344,15 +343,15 @@
 				folder.bind('click', function(){
 					this.folderImg.attr('src', this.folderImg.attr('src') == 'img/folder-closed.png' ? 'img/folder-open.png' : 'img/folder-closed.png');
 					this.setDIV.toggle();
+					if (!this.rendered) {
+						var spinner = makeCustomSpinner();
+						this.appendChild(spinner.el);
+						makeItemComplex(Trustee.docs[docSet].docs[child], spinner, this.src, this.path, this.setDIV);
+						this.rendered = 1;
+					}
 				});
 
 				setDIV.hide();
-
-				if (ct == 0) {
-					if (spinner) {
-						spinner.stop();
-					}
-				}
 
 				return folder;
 			}
