@@ -1,6 +1,7 @@
 <html>
 	<head>
 		<!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
 		<!-- Set min-width in node-webkit to 310px -->
 		<title>Trustee Docs</title>
 		<style type='text/css'>
@@ -17,6 +18,10 @@
 				-moz-user-select: none;
 				-ms-user-select: none;
 				user-select: none;
+			}
+
+			.homebtn {
+				color: #232323;
 			}
 
 			#tree {
@@ -72,10 +77,10 @@
 				height:30px;
 				background-color: rgb(230, 233, 240);
 				border:1px solid #232323;
-				width:-moz-calc(100% - 20px);
-				width:-webkit-calc(100% - 20px);
-				width:-o-calc(100% - 20px);
-				width:calc(100% - 20px);
+				width:-moz-calc(100% - 45px);
+				width:-webkit-calc(100% - 45px);
+				width:-o-calc(100% - 45px);
+				width:calc(100% - 45px);
 				padding-left:4px;
 				margin:0;
 				color: #232323;
@@ -201,6 +206,9 @@
 					<div class = 'loadbar' style='left:600px;'></div>
 				</div>
 				<input type='text' id = 'search' placeholder='Search docs' onchange="update_done()" onkeyup="update()"/>
+				<div class='homebtn' style = 'position:absolute;right:0px; top:15px;cursor:pointer;' onclick = 'home();'>
+					<i class="fa fa-home fa-2x"></i>
+				</div>
 			</div>
 			<div id = 'tree'>
 			</div>
@@ -400,7 +408,6 @@
 					cont.append(innerCont);
 
 					var desc = $('<span>', {class:'itemTextObject'});
-					debugger;
 					desc.html(text.substr(0, boldStart) + "<b>" + text.substr(boldStart, queryLength) + "</b>" + text.substr(boldStart + queryLength));
 					innerCont.append(desc);
 
@@ -522,6 +529,15 @@
 					bars[i].style.visibility = "hidden";
 				}
 			};
+
+			function home() {
+				setFrameURL();
+				if (Trustee.selected) {
+					$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
+					$(Trustee.selected).css('color', '#232323');
+					Trustee.selected = undefined;
+				}
+			}
 
 			function setFrameURL(url) {
 				url = url == undefined ? 'splash.html' : url;
