@@ -21,12 +21,12 @@
 
 			#tree {
 				position:relative;
-				margin-top:57px;
+				margin-top:65px;
 			}
 
 			#searchResults {
 				position:relative;
-				margin-top:57px;
+				margin-top:68px;
 			}
 
 			#lcol {
@@ -235,16 +235,19 @@
 			var Trustee = {
 				selected:undefined,
 				docs: {},
-				click:0
+				click:0,
+				cumulative:[]
 			};
 
 			$.get('/plugins/python/output/pyDocs.json', function(d){
-				var pd = JSON.parse(d);
-				importJSON(pd);
-				Trustee.docs[pd.info.name] = pd;
-				cumulative = [];
-				cumulative = cumulative.concat(addDocsetToIndex(pd));
+				importDocset(JSON.parse(d));
 			});
+
+			function importDocset(pd) {
+				applyJSON(pd);
+				Trustee.docs[pd.info.name] = pd;
+				Trustee.cumulative = Trustee.cumulative.concat(addDocsetToIndex(pd));
+			}
 
 			function addDocsetToIndex(pd) {
 				var mainIcon = '/plugins/' + pd.info.icons.path + pd.info.icons.mainIcon;
@@ -289,7 +292,7 @@
 				return spinner;
 			}
 
-			function importJSON(json) {
+			function applyJSON(json) {
 				//import docs from json
 				var path = '/plugins/' + json.info.source;
 				var pages = json.info.pages;
@@ -349,7 +352,7 @@
 						return 0;
 					}
 				});
-				items = items.slice(0, 60);
+				items = items.slice(0, 50);
 				var spinner = makeCustomSpinner();
 				$(spinner.el).css('top','18px');
 				$(spinner.el).css('right','10px');
@@ -357,6 +360,7 @@
 
 				if (items.length == 0) {
 					spinner.stop();
+					$('#searchResults').empty();
 					return;
 				}
 				var newDiv = $("<div>");
@@ -566,6 +570,7 @@
 
 			var last_query = "";
 			function update() {
+				// debugger;
 				var query = document.getElementById("search").value;
 				if (query == '') {
 					last_query = '';
@@ -592,7 +597,7 @@
 				if (query != last_query) {
 					last_query = "";
 					if (query.length > 0) {
-						add(cumulative, query, results);
+						add(Trustee.cumulative, query, results);
 						makeHeterogeneousComplex(results);
 					}
 				}
