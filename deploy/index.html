@@ -343,7 +343,6 @@
 				});
 				items = items.slice(0, 60);
 				var spinner = makeCustomSpinner();
-				$("#searchResults").empty();
 				$(spinner.el).css('top','18px');
 				$(spinner.el).css('right','10px');
 				$("#searchResults")[0].appendChild(spinner.el);
@@ -352,14 +351,19 @@
 					spinner.stop();
 					return;
 				}
+				var newDiv = $("<div>");
 				for (var j = 0; j < items.length; j++) {
 					var end = j == items.length - 1 ? 1 : 0;
-					makeItem(items[j][0][3], items[j][0][2] ,/*[items[j][0][0], items[j][0][1]]*/items[j][0][0], $("#searchResults"), end, spinner, -1);
+					makeItem(items[j][0][3], items[j][0][2] ,/*[items[j][0][0], items[j][0][1]]*/items[j][0][0], newDiv, end, spinner, -1);
 				}
+
+				$
+
+				$("#searchResults").prepend(newDiv);
+				$('#searchResults > div:gt(0)').remove();
 			}
 
 			function makeItem(text, itemURL, imgPath, div, end, spinner, indentationLevel) {
-				// debugger;
 				setTimeout(function(){
 					if (indentationLevel == -1) { //make sure we don't get a 0 value
 						var innerCont = $('<span>', {class: 'itemInner'});
@@ -496,17 +500,45 @@
 			};
 
 			function setFrameURL(url) {
-				if (!url) {
-					setFrameURL('splash.html');
+				url = url == undefined ? 'splash.html' : url;
+				if (!isURLTheSame(document.getElementById('display').src, url)) { //assumes that the second url is a relative path
+					document.getElementById('display').src = url;
+				}
+			}
+
+			function isURLTheSame(url, relativeURL) {
+				var urlRelativePath = getRelativePath(url, 0);
+				if (relativeURL.charAt(0) == '/') {
+					if ('/' + window.location.origin.split('/')[2] + relativeURL == urlRelativePath) {
+						return true;
+					}
+
+					return false;
 				}
 				else {
-					document.getElementById('display').src = url;
+					//assume that the path is in the same directory
+					if (urlRelativePath.split('/')[urlRelativePath.split('/').length - 1] == relativeURL) {
+						return true;
+					}
+
+					return false;
+				}
+
+				//current path is /deploy/index.html
+			}
+
+			function getRelativePath(url, k) {
+				if (url.split('/')[url.split('/').length - k] != window.location.origin.split('/')[2]) {
+					k++;
+					return getRelativePath(url, k) + '/' + url.split('/')[url.split('/').length - k];
+				}
+				else {
+					return '';
 				}
 			}
 
 			//amitp's search capabilities
 			function add(candidates, query, results) {
-				// debugger;
 				candidates.forEach(function(c) {
 					var i = c[3].toLowerCase().indexOf(query.toLowerCase());
 					if (i >= 0) {
@@ -545,7 +577,6 @@
 					}
 				}
 				var results = [];
-				debugger;
 				if (query != last_query) {
 					last_query = "";
 					if (query.length > 0) {
