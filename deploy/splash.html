@@ -1,8 +1,156 @@
 <html>
 	<head>
+		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
 		<title>Home + Settings</title>
+		<style type='text/css'>
+			.row {
+				height:25px;
+				padding-top: 6px;
+				width:calc(100% - 2px);
+				width:-webkit-calc(100% - 2px);
+				border-left: 1px solid #232323;
+				border-right: 1px solid #232323;
+				border-bottom: 1px solid #232323;
+			}
+
+			.btn {
+				margin-top: -2px;
+				margin-right: 5px;
+				float:right;
+				line-height:20px;
+				width:68px;
+				height:20px;
+				border-radius: 3px;
+				color:#fff;
+				cursor:pointer;
+			}
+
+			.removeBtn {
+				background-color: #c0392b;
+				border:1px solid #c0392b;
+			}
+
+			.updateBtn {
+				background-color: #27ae60;
+				border:1px solid #27ae60;
+			}
+
+			.docTitle {
+				float:left;
+				margin-left:2px;
+				padding-top: 1px;
+			}
+
+			.docCheckbox {
+				float:left;
+				margin-left:6px;
+			}
+
+			.docTable {
+				margin-top: -15px;
+				width:-webkit-calc(100%-60px);
+				width:calc(100%-60px);
+				max-height: 550px;
+				overflow:scroll;
+			}
+
+			.updateText {
+				margin-left:8px;
+				/*margin-top:1px;*/
+			}
+
+			.removeText {
+				margin-left:4px;
+				/*margin-top:1px;*/
+			}
+
+			#dledDocsHeader {
+				cursor:pointer;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+		</style>
 	</head>
-	<body style='font-family:helvetica;'>
-		<center style='width:100%;'><h1>Home and Settings</h1></center>
+	<body style='font-family:helvetica;color:#232323;'>
+		<!-- <center style='width:100%;'><h1>Home and Settings</h1></center> -->
+		<div style = 'margin-left:2px;margin-top:15px;padding:0;'>
+			<h3 id ='dledDocsHeader'>Downloaded Docs</h3>
+			<div class = 'docTable'>
+				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
+			</div>
+		</div>	
+		<script type = 'text/javascript' src = 'js/jquery.js'></script>
+		<script type = 'text/javascript'>
+			var fs = require('fs');
+			var fs = require('http');
+
+			addDocsToTable('Python 2.7', 1);
+
+			$('#dledDocsHeader').bind('click', function(){
+				$('.docTable').slideToggle({
+					easing:'linear',
+					duration:300
+				});
+			});
+
+			function addDocsToTable(name, active) {
+				// <div class = 'row'>
+				// 	<input class = 'docCheckbox' type='checkbox'/>
+				// 	<div class = 'docTitle'>Python 2.7.3</div>
+				// 	<div class = 'btn updateBtn'><div class = 'updateText'>Update</div></div>
+				// 	<div class = 'btn removeBtn'><div class = 'removeText'>Remove</div></div>
+				// </div>
+				var row = $("<div>", {class:'row'});
+				var input = $("<input>", {class:'docCheckbox', type:'checkbox'});
+				if (active) {
+					input.prop('checked', true);
+				}
+				else {
+					input.prop('checked', false);
+				}
+				var title = $("<div>", {class:'docTitle', text:name});
+				var update = $("<div>", {class:'btn updateBtn'});
+				var updateText = $("<div>", {class:'updateText',text:'Update'})
+				update.append(updateText);
+				var remove = $("<div>", {class:'btn removeBtn'});
+				var removeText = $("<div>", {class:'removeText',text:'Remove'});
+				remove.append(removeText);
+
+				row.append(input);
+				row.append(title);
+				row.append(update);
+				row.append(remove);
+				$('.docTable').append(row);
+			}
+
+			function makeCustomSpinner() {
+				var opts = {
+					lines: 10, // The number of lines to draw
+					length: 5, // The length of each line
+					width: 3, // The line thickness
+					radius: 3, // The radius of the inner circle
+					corners: 2, // Corner roundness (0..1)
+					rotate: 0, // The rotation offset
+					direction: 1, // 1: clockwise, -1: counterclockwise
+					speed: 1, // Rounds per second
+					trail: 60, // Afterglow percentage
+					shadow: false, // Whether to render a shadow
+					hwaccel: false, // Whether to use hardware acceleration
+					className: 'spinner', // The CSS class to assign to the spinner
+					zIndex: 2e9, // The z-index (defaults to 2000000000)
+					top: 'auto', // Top position relative to parent in px
+					left: 'auto' // Left position relative to parent in px
+				};
+
+				var spinner = new Spinner(opts).spin();
+				$(spinner.el).css('right', '17px');
+				$(spinner.el).css('bottom', '9px');
+				return spinner;
+			}
+		</script>
 	</body>
 </html>

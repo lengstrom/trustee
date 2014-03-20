@@ -1,12 +1,12 @@
 {
   "name": "Trustee",
-  "main": "index.html",
+  "main": "app://Trustee/deploy/index.html",
   "description": "Open source documentation manager",
   "window": {
-    "toolbar": false,
+    "toolbar": true,
     // "icon": "icon.png", //need an icon
-    "width": 640,
-    "height": 800,
+    "width": 800,
+    "height": 640,
     "frame": true,
     "title":"Trustee",
     "resizable":true

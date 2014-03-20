@@ -10,6 +10,7 @@
 				padding:0;
 				height:100%;
 				width:100%;
+				color:#232323;
 				font-size: 10.5pt;
 				font-family: helvetica;
 				-webkit-touch-callout: none;
@@ -234,6 +235,10 @@
 		<script type='text/javascript' src='js/jquery.js'></script>
 		<script type='text/javascript' src='js/spin.min.js'></script>
 		<script type="text/javascript">
+			//node-webkit
+			// require('nw.gui').Window.get().maximize();
+
+			//end node-webkit
 			$('#separator').bind('mousedown', function(e) {
 				document.body.style.cursor = 'ew-resize';
 				$('#displayCover').css('z-index', '2');
@@ -255,16 +260,16 @@
 			};
 
 			$.get('/plugins/python/output/pyDocs.json', function(d){
-				importDocset(JSON.parse(d));
+				importDocs(JSON.parse(d));
 			});
 
-			function importDocset(pd) {
+			function importDocs(pd) {
 				applyJSON(pd);
 				Trustee.docs[pd.info.name] = pd;
-				Trustee.cumulative = Trustee.cumulative.concat(addDocsetToIndex(pd));
+				Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(pd));
 			}
 
-			function addDocsetToIndex(pd) {
+			function addDocsToIndex(pd) {
 				var mainIcon = '/plugins/' + pd.info.icons.path + pd.info.icons.mainIcon;
 				var path = '/plugins/' + pd.info.source;
 				var cumulative = [];
@@ -441,7 +446,7 @@
 				}, 2);
 			}
 
-			function addFolder(name, indentationLevel, elem, imgPath, docSet, child, path) {
+			function addFolder(name, indentationLevel, elem, imgPath, Docs, child, path) {
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
 				var folderImg = $('<img>', {src:"img/folder-closed.png"});
@@ -471,7 +476,7 @@
 					if (!this.rendered) {
 						var spinner = makeCustomSpinner();
 						this.appendChild(spinner.el);
-						makeItemComplex(Trustee.docs[docSet].docs[child], spinner, this.src, this.path, this.setDIV);
+						makeItemComplex(Trustee.docs[Docs].docs[child], spinner, this.src, this.path, this.setDIV);
 						this.rendered = 1;
 					}
 				});
