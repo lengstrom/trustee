@@ -236,7 +236,8 @@
 				selected:undefined,
 				docs: {},
 				click:0,
-				cumulative:[]
+				cumulative:[],
+				last_query:""
 			};
 
 			$.get('/plugins/python/output/pyDocs.json', function(d){
@@ -253,8 +254,13 @@
 				var mainIcon = '/plugins/' + pd.info.icons.path + pd.info.icons.mainIcon;
 				var path = '/plugins/' + pd.info.source;
 				var cumulative = [];
-				["Modules", "Classes", "Functions", "Constants", "Methods", "Attributes", "Exceptions"].forEach(function(type) {
-					var secondaryIcon = pd.info.icons.docsIcons[type].search('/') == -1 ? 'img/objects/' + pd.info.icons.docsIcons[type] : '/plugins/' + pd.info.icons.path + pd.info.icons[type];
+				var types = [];
+				for (var i in pd.docs) {
+					types.push(i);
+				}
+
+				types.forEach(function(type) {
+					var secondaryIcon = pd.info.icons.docsIcons[type].search('/') == -1 ? 'img/objects/' + pd.info.icons.docsIcons[type] : '/plu	gins/' + pd.info.icons.path + pd.info.icons[type];
 					Object.keys(pd.pages).forEach(function(p) {
 						pd.pages[p][type].forEach(function(p) {
 							var sPath = path + p[1]; //specific path to the file
@@ -568,12 +574,10 @@
 			// 2. if lots of things match because of the same subword, don't show them all
 			// 3. sort by most likely to be used
 
-			var last_query = "";
 			function update() {
-				// debugger;
 				var query = document.getElementById("search").value;
 				if (query == '') {
-					last_query = '';
+					Trustee.last_query = '';
 					$('#searchResults').hide();
 					$('#tree').show();
 					// setFrameURL()
@@ -594,20 +598,20 @@
 					}
 				}
 				var results = [];
-				if (query != last_query) {
-					last_query = "";
+				if (query != Trustee.last_query) {
+					Trustee.last_query = "";
 					if (query.length > 0) {
 						add(Trustee.cumulative, query, results);
 						makeHeterogeneousComplex(results);
 					}
 				}
-				last_query = query;
+				Trustee.last_query = query;
 				// document.getElementById("output").innerHTML = html;
 
 			}
 
 			function update_done() {
-				last_query = document.getElementById("search").value;
+				Trustee.last_query = document.getElementById("search").value;
 				update();
 			}
 
