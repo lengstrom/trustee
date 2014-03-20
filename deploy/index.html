@@ -408,7 +408,13 @@
 					cont.append(innerCont);
 
 					var desc = $('<span>', {class:'itemTextObject'});
-					desc.html(text.substr(0, boldStart) + "<b>" + text.substr(boldStart, queryLength) + "</b>" + text.substr(boldStart + queryLength));
+					if (boldStart + 1) {
+						debugger;
+						desc.html(text.substr(0, boldStart) + "<b>" + text.substr(boldStart, queryLength) + "</b>" + text.substr(boldStart + queryLength));
+					}
+					else {
+						desc.html(text);
+					}
 					innerCont.append(desc);
 
 					if (imgPath2) {
