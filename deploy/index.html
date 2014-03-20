@@ -340,7 +340,7 @@
 				}
 			}
 
-			function makeHeterogeneousComplex(items) {
+			function makeHeterogeneousComplex(items, queryLength) {
 				items.sort(function(a,b) {
 					if (a[1] == 0) { 
 						if (b[1] == 0) {
@@ -372,14 +372,14 @@
 				var newDiv = $("<div>");
 				for (var j = 0; j < items.length; j++) {
 					var end = j == items.length - 1 ? 1 : 0;
-					makeItem(items[j][0][3], items[j][0][2] ,items[j][0][0], newDiv, end, spinner, -1, items[j][0][1]);
+					makeItem(items[j][0][3], items[j][0][2] ,items[j][0][0], newDiv, end, spinner, -1, items[j][0][1], items[j][1], queryLength);
 				}
 
 				$("#searchResults").prepend(newDiv);
 				$('#searchResults > div:gt(0)').remove();
 			}
 
-			function makeItem(text, itemURL, imgPath, div, end, spinner, indentationLevel, imgPath2) {
+			function makeItem(text, itemURL, imgPath, div, end, spinner, indentationLevel, imgPath2, boldStart, queryLength) {
 				setTimeout(function(){
 					if (indentationLevel == -1) { //make sure we don't get a 0 value
 						var innerCont = $('<span>', {class: 'itemInner'});
@@ -399,7 +399,9 @@
 
 					cont.append(innerCont);
 
-					var desc = $('<span>', {class:'itemTextObject', text:text});
+					var desc = $('<span>', {class:'itemTextObject'});
+					debugger;
+					desc.html(text.substr(0, boldStart) + "<b>" + text.substr(boldStart, queryLength) + "</b>" + text.substr(boldStart + queryLength));
 					innerCont.append(desc);
 
 					if (imgPath2) {
@@ -602,7 +604,7 @@
 					Trustee.last_query = "";
 					if (query.length > 0) {
 						add(Trustee.cumulative, query, results);
-						makeHeterogeneousComplex(results);
+						makeHeterogeneousComplex(results, query.length);
 					}
 				}
 				Trustee.last_query = query;
