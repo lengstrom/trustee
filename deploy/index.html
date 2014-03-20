@@ -49,6 +49,14 @@
 				bottom:2.5px;
 			}
 
+			.iconImgObject2 {
+				height:16px;
+				width:16px;
+				margin-left:34px;
+				position:absolute;
+				bottom:2.5px;	
+			}
+
 			.searchbarCont {
 				z-index: 3;
 				background-color:rgb(230, 233, 240);
@@ -354,16 +362,14 @@
 				var newDiv = $("<div>");
 				for (var j = 0; j < items.length; j++) {
 					var end = j == items.length - 1 ? 1 : 0;
-					makeItem(items[j][0][3], items[j][0][2] ,/*[items[j][0][0], items[j][0][1]]*/items[j][0][0], newDiv, end, spinner, -1);
+					makeItem(items[j][0][3], items[j][0][2] ,items[j][0][0], newDiv, end, spinner, -1, items[j][0][1]);
 				}
-
-				$
 
 				$("#searchResults").prepend(newDiv);
 				$('#searchResults > div:gt(0)').remove();
 			}
 
-			function makeItem(text, itemURL, imgPath, div, end, spinner, indentationLevel) {
+			function makeItem(text, itemURL, imgPath, div, end, spinner, indentationLevel, imgPath2) {
 				setTimeout(function(){
 					if (indentationLevel == -1) { //make sure we don't get a 0 value
 						var innerCont = $('<span>', {class: 'itemInner'});
@@ -383,11 +389,17 @@
 
 					cont.append(innerCont);
 
-					var iconImg = $('<img>', {class:'iconImgObject', src:imgPath})
-					innerCont.prepend(iconImg);
-
 					var desc = $('<span>', {class:'itemTextObject', text:text});
 					innerCont.append(desc);
+
+					if (imgPath2) {
+						var iconImg2 = $('<img>', {class:'iconImgObject2', src:imgPath2});
+						innerCont.prepend(iconImg2);
+						desc.css('margin-left', '52px');
+					}
+
+					var iconImg = $('<img>', {class:'iconImgObject', src:imgPath})
+					innerCont.prepend(iconImg);
 
 					div.append(cont);
 
