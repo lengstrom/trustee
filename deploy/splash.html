@@ -11,6 +11,7 @@
 				border-left: 1px solid #232323;
 				border-right: 1px solid #232323;
 				border-bottom: 1px solid #232323;
+				overflow:scroll;
 			}
 
 			.btn {
@@ -84,6 +85,7 @@
 			</div>
 		</div>	
 		<script type = 'text/javascript' src = 'js/jquery.js'></script>
+		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
 		<script type = 'text/javascript'>
 			var fs = require('fs');
 			var fs = require('http');
@@ -97,7 +99,7 @@
 				});
 			});
 
-			function addDocsToTable(name, active) {
+			function addDocsToTable(name, active, notFoundPath) {
 				// <div class = 'row'>
 				// 	<input class = 'docCheckbox' type='checkbox'/>
 				// 	<div class = 'docTitle'>Python 2.7.3</div>
@@ -125,6 +127,36 @@
 				row.append(update);
 				row.append(remove);
 				$('.docTable').append(row);
+				//apply handlers if its found
+
+				if (notFoundPath) {
+					$(row).css("background-color", "#c0392b");
+					remove.remove();
+					update.remove();
+					title.html(title.html() + ' - DOCS NOT FOUND. Not found: ' + process.cwd() + notFoundPath);
+					input.remove();
+				}
+				else {
+					update[0].name = name;
+					update[0].row = row;
+
+					remove[0].name = name;
+					remove[0].row = row;
+
+					update.bind('click', updateDocs);
+					remove.bind('click', removeDocs);
+				}
+			}
+
+			function removeDocs() {
+				this.row.remove();
+				//Remove docs
+			}
+
+			function updateDocs() {
+				var spinner = makeCustomSpinner();
+				this.row.append(spinner.el);
+				//
 			}
 
 			function makeCustomSpinner() {
@@ -147,8 +179,11 @@
 				};
 
 				var spinner = new Spinner(opts).spin();
-				$(spinner.el).css('right', '17px');
-				$(spinner.el).css('bottom', '9px');
+				// $(spinner.el).css('position', 'abso');
+				$(spinner.el).css('right', '175px');
+				$(spinner.el).css('margin-top', '8px');
+				$(spinner.el).css('background-color', '#FFFFFF');
+				// $(spinner.el).css('bottom', '9px');
 				return spinner;
 			}
 		</script>
