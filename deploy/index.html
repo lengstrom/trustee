@@ -92,55 +92,6 @@
 				font-size: 9pt;
 			}
 
-			.loadbar {
-				visibility: hidden;
-				height:140%;
-				left:30px;
-				top:-12px;
-				/*ie 9+, opera, etc work fine */
-				-webkit-transform:rotate(30deg);
-				-moz-transform:rotate(30deg);
-				-o-transform:rotate(30deg);
-				-ms-transform:rotate(30deg);
-				transform:rotate(30deg);
-				width:20px;
-				background-color: #232323; /*#DEDEDE;*/
-				position:absolute;
-				-moz-animation: load 1s infinite linear;
-				-webkit-animation: load 1s infinite linear;
-				animation: load 1s infinite linear;
-			}
-
-			@-webkit-keyframes load {
-				from {
-					margin-left:1;
-				}
-
-				to {
-					margin-left:60;
-				}
-			}
-
-			@-moz-keyframes load {
-				from {
-					margin-left:1;
-				}
-
-				to {
-					margin-left:60;
-				}
-			}
-
-			@keyframes load {
-				from {
-					margin-left:1;
-				}
-
-				to {
-					margin-left:60;
-				}
-			}
-
 			.itemBar {
 				height:20px;
 				line-height:20px;
@@ -192,20 +143,6 @@
 	<body>
 		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;padding:0;width:250px;height:100%;'>
 			<div class = 'searchbarCont' style ='position:fixed;'>
-				<div style = 'overflow:hidden;'>
-					<div class = 'loadbar' style='left:-60px;'></div>
-					<div class = 'loadbar' style='left:0px;'></div>
-					<div class = 'loadbar' style='left:60px;'></div>
-					<div class = 'loadbar' style='left:120px;'></div>
-					<div class = 'loadbar' style='left:180px;'></div>
-					<div class = 'loadbar' style='left:240px;'></div>
-					<div class = 'loadbar' style='left:300px;'></div>
-					<div class = 'loadbar' style='left:360px;'></div>
-					<div class = 'loadbar' style='left:420px;'></div>
-					<div class = 'loadbar' style='left:480px;'></div>
-					<div class = 'loadbar' style='left:540px;'></div>
-					<div class = 'loadbar' style='left:600px;'></div>
-				</div>
 				<input type='text' id = 'search' placeholder='Search docs' onchange="update_done()" onkeyup="update()"/>
 				<div class='homebtn' style = 'position:absolute;right:0px; top:15px;cursor:pointer;' onclick = 'home();'>
 					<i class="fa fa-home fa-2x"></i>
@@ -250,7 +187,6 @@
 			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
 			$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 
-			stopSearchbarLoadingAnim();
 			var Trustee = {
 				selected:undefined,
 				docs: {},
@@ -531,22 +467,6 @@
 				$('#displayCover').css('z-index', '-1');
 				$(window).unbind('mousemove', separatorMove);
 			}
-
-			function startSearchbarLoadingAnim() {
-				var bars = document.getElementsByClassName('loadbar');
-				for (var i = 0; i < bars.length; i++) {
-					bars[i].style.visibility = "";
-					bars[i].style.webkitAnimationPlayState = "running";
-				}
-			};
-
-			function stopSearchbarLoadingAnim() {
-				var bars = document.getElementsByClassName('loadbar');
-				for (var i = 0; i < bars.length; i++) {
-					bars[i].style.webkitAnimationPlayState = "paused";
-					bars[i].style.visibility = "hidden";
-				}
-			};
 
 			function home() {
 				setFrameURL();
