@@ -195,9 +195,9 @@
 				last_query:""
 			};
 
-			$.get('/plugins/python/output/pyDocs.json', function(d){
-				importDocs(JSON.parse(d));
-			});
+			// $.get('/plugins/python/output/output.json', function(d){
+			// 	importDocs(JSON.parse(d));
+			// });
 
 			function importDocs(pd) {
 				applyJSON(pd);

@@ -1,6 +1,3 @@
-var fs = require('fs');
-var htmlparser = require('htmlparser2');
-
 var pyDocs = {
 	info: {
 		pages:'pages',
@@ -198,14 +195,20 @@ var namesParser = new htmlparser.Parser({
 	}
 });
 
-fs.readdir(__dirname + '/python-2.7.5-docs-html/library/', docIndexRead);
+var files = fs.readdirSync(__dirname + '/python-2.7.5-docs-html/library/');
 
-function docIndexRead(err, files) {
-	if (err) {
-		throw err;
-	}
+pyDocs.pages['distutils/apiref.html'] = {
+	Exceptions:[],
+	Classes:[],
+	Functions:[],
+	Methods:[],
+	Constants:[],
+	Attributes:[],
+	Modules:[]
+}; //disutils are irregular
 
-	pyDocs.pages['distutils/apiref.html'] = {
+for (var i in files) {
+	pyDocs.pages['library/' + files[i]] = {
 		Exceptions:[],
 		Classes:[],
 		Functions:[],
@@ -213,105 +216,92 @@ function docIndexRead(err, files) {
 		Constants:[],
 		Attributes:[],
 		Modules:[]
-	}; //disutils are irregular
-	
-	for (var i in files) {
-		pyDocs.pages['library/' + files[i]] = {
-			Exceptions:[],
-			Classes:[],
-			Functions:[],
-			Methods:[],
-			Constants:[],
-			Attributes:[],
-			Modules:[]
-		};
-	}
-
-	// indexParser.write(data);
-	// indexParser.end();
-
-	for (var i in pyDocs.pages) {
-		var data = fs.readFileSync(__dirname + "/python-2.7.5-docs-html/" + i);
-		namesParser._cbs.bhref = i;
-		namesParser.write(data);
-	}
-
-	var j;
-	for (var i in pyDocs.pages) {
-		pyDocs.pages[i].Exceptions.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Exceptions) {
-			pyDocs.docs.Exceptions.push([pyDocs.pages[i].Exceptions[j][0], pyDocs.pages[i].Exceptions[j][1]]);
-		}
-
-		pyDocs.pages[i].Classes.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Classes) {
-			pyDocs.docs.Classes.push([pyDocs.pages[i].Classes[j][0], pyDocs.pages[i].Classes[j][1]]);
-		}
-		
-		pyDocs.pages[i].Functions.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Functions) {
-			pyDocs.docs.Functions.push([pyDocs.pages[i].Functions[j][0], pyDocs.pages[i].Functions[j][1]]);
-		}
-		
-		pyDocs.pages[i].Methods.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Methods) {
-			pyDocs.docs.Methods.push([pyDocs.pages[i].Methods[j][0], pyDocs.pages[i].Methods[j][1]]);
-		}
-		
-		pyDocs.pages[i].Constants.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Constants) {
-			pyDocs.docs.Constants.push([pyDocs.pages[i].Constants[j][0], pyDocs.pages[i].Constants[j][1]]);
-		}
-		
-		pyDocs.pages[i].Attributes.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Attributes) {
-			pyDocs.docs.Attributes.push([pyDocs.pages[i].Attributes[j][0], pyDocs.pages[i].Attributes[j][1]]);
-		}
-		
-		pyDocs.pages[i].Modules.sort(alphabeticallySort);
-
-		for (j in pyDocs.pages[i].Modules) {
-			pyDocs.docs.Modules.push([pyDocs.pages[i].Modules[j][0], pyDocs.pages[i].Modules[j][1]]);
-		}
-	}
-
-	pyDocs.docs.Exceptions.sort(alphabeticallySort);
-
-	pyDocs.docs.Classes.sort(alphabeticallySort);
-
-	pyDocs.docs.Functions.sort(alphabeticallySort);
-
-	pyDocs.docs.Methods.sort(alphabeticallySort);
-
-	pyDocs.docs.Constants.sort(alphabeticallySort);
-
-	pyDocs.docs.Attributes.sort(alphabeticallySort);
-
-	fs.readFileSync(__dirname + "/python-2.7.5-docs-html/_static/sidebar.js").toString().split('\n').forEach(function (line) {
-		if (line.toString() == '  set_position_from_cookie();') {
-			fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n  collapse_sidebar();" + "\n");
-		}
-		else {
-			if (line.toString() !== '  collapse_sidebar();') {
-				fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n");
-			}
-		}
-	});
-	fs.renameSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", __dirname + "/python-2.7.5-docs-html/_static/sidebar.js");
-	fs.writeFileSync(__dirname + '/output/pyDocs.json', JSON.stringify(pyDocs));
+	};
 }
+
+// indexParser.write(data);
+// indexParser.end();
+
+for (var i in pyDocs.pages) {
+	var data = fs.readFileSync(__dirname + "/python-2.7.5-docs-html/" + i);
+	namesParser._cbs.bhref = i;
+	namesParser.write(data);
+}
+
+var j;
+for (var i in pyDocs.pages) {
+	pyDocs.pages[i].Exceptions.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Exceptions) {
+		pyDocs.docs.Exceptions.push([pyDocs.pages[i].Exceptions[j][0], pyDocs.pages[i].Exceptions[j][1]]);
+	}
+
+	pyDocs.pages[i].Classes.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Classes) {
+		pyDocs.docs.Classes.push([pyDocs.pages[i].Classes[j][0], pyDocs.pages[i].Classes[j][1]]);
+	}
+	
+	pyDocs.pages[i].Functions.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Functions) {
+		pyDocs.docs.Functions.push([pyDocs.pages[i].Functions[j][0], pyDocs.pages[i].Functions[j][1]]);
+	}
+	
+	pyDocs.pages[i].Methods.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Methods) {
+		pyDocs.docs.Methods.push([pyDocs.pages[i].Methods[j][0], pyDocs.pages[i].Methods[j][1]]);
+	}
+	
+	pyDocs.pages[i].Constants.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Constants) {
+		pyDocs.docs.Constants.push([pyDocs.pages[i].Constants[j][0], pyDocs.pages[i].Constants[j][1]]);
+	}
+	
+	pyDocs.pages[i].Attributes.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Attributes) {
+		pyDocs.docs.Attributes.push([pyDocs.pages[i].Attributes[j][0], pyDocs.pages[i].Attributes[j][1]]);
+	}
+	
+	pyDocs.pages[i].Modules.sort(alphabeticallySort);
+
+	for (j in pyDocs.pages[i].Modules) {
+		pyDocs.docs.Modules.push([pyDocs.pages[i].Modules[j][0], pyDocs.pages[i].Modules[j][1]]);
+	}
+}
+
+pyDocs.docs.Exceptions.sort(alphabeticallySort);
+
+pyDocs.docs.Classes.sort(alphabeticallySort);
+
+pyDocs.docs.Functions.sort(alphabeticallySort);
+
+pyDocs.docs.Methods.sort(alphabeticallySort);
+
+pyDocs.docs.Constants.sort(alphabeticallySort);
+
+pyDocs.docs.Attributes.sort(alphabeticallySort);
+
+fs.readFileSync(__dirname + "/python-2.7.5-docs-html/_static/sidebar.js").toString().split('\n').forEach(function (line) {
+	if (line.toString() == '  set_position_from_cookie();') {
+		fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n  collapse_sidebar();" + "\n");
+	}
+	else {
+		if (line.toString() !== '  collapse_sidebar();') {
+			fs.appendFileSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", line.toString() + "\n");
+		}
+	}
+});
+
+fs.renameSync(__dirname + "/python-2.7.5-docs-html/_static/temp.js", __dirname + "/python-2.7.5-docs-html/_static/sidebar.js");
+fs.writeFileSync(__dirname + '/output/output.json', JSON.stringify(pyDocs));
+finished = 1;
 
 function alphabeticallySort(a,b){
 	if (a[0] < b[0]) return -1;
 	if (a[0] > b[0]) return 1;
 	return 0;
 }
-
-
-

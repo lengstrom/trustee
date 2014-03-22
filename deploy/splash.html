@@ -88,7 +88,11 @@
 		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
 		<script type = 'text/javascript'>
 			var fs = require('fs');
-			var fs = require('http');
+			var http = require('http');
+			var path = require('path');
+			var vm = require('vm');
+			var util = require('util');
+			var sandbox = require('node-sandbox').Sandbox;
 
 			addDocsToTable('Python 2.7', 1);
 
@@ -99,13 +103,15 @@
 				});
 			});
 
+			function loadPlugins() {
+				doesInfoFileExist();
+				var potentialPlugins = getPotentialPlugins();
+				var pluginData = getDocs();
+				var plugins = fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString();
+				// if ()
+			}
+
 			function addDocsToTable(name, active, notFoundPath) {
-				// <div class = 'row'>
-				// 	<input class = 'docCheckbox' type='checkbox'/>
-				// 	<div class = 'docTitle'>Python 2.7.3</div>
-				// 	<div class = 'btn updateBtn'><div class = 'updateText'>Update</div></div>
-				// 	<div class = 'btn removeBtn'><div class = 'removeText'>Remove</div></div>
-				// </div>
 				var row = $("<div>", {class:'row'});
 				var input = $("<input>", {class:'docCheckbox', type:'checkbox'});
 				if (active) {
@@ -151,6 +157,236 @@
 			function removeDocs() {
 				this.row.remove();
 				//Remove docs
+			}
+
+			getPotentialPlugins();
+
+			function getPotentialPlugins() {
+				var d = fs.readdirSync(process.cwd() + "/plugins/");
+				var dirs = [];
+				var currentPath = process.cwd() + "/plugins/";
+				var overallInfo = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString());
+				d.forEach(function(o){
+					var stat = fs.statSync(currentPath + o);
+					if (stat.isDirectory()) dirs.push(o);
+				});
+
+				dirs.forEach(function(o){
+					if (fs.existsSync(currentPath + o + "/docInfo.json")) {
+						var info = fs.readFileSync(currentPath + o + "/docInfo.json").toString();
+						info = JSON.parse(info);
+						executeParser(info, currentPath + o);
+					}
+					//if docInfo.json does not exist
+				});
+			}
+
+			function executeParser(info, currentPath) {
+				switch (getExtension(info.executable)) {
+					case "js":
+						runJSParser(info, currentPath);
+						break;
+					//eventually support other parser types, maybe.
+
+					default:
+						alert('File extension `' + getExtension(info.executable) + '` not supported!');
+						break;
+				}
+			}
+
+			function runJSParser(info, currentPath) {
+				var execPath = info.executable.charAt(0) == '/' ? info.executable : '/' + info.executable;
+				if (fs.existsSync(currentPath + execPath)){
+					var sandbox = {
+						fs: {
+							openSync:function(path, opts) {
+								if (path.charAt(0) != '/') {
+									path = '/' + path;
+								}
+								if (isFileInDirectory(process.cwd() + '/plugins',  path)) {
+									return fs.openSync(path, opts);
+								}
+							},
+							appendFileSync:function(path, str) {
+								debugger;
+								if (path.charAt(0) != '/') {
+									path = '/' + path;
+								}
+								if (isFileInDirectory(process.cwd() + '/plugins',  path)) {
+									return fs.appendFileSync(path, str);
+								}
+								return false;
+							},
+							renameSync:function(path, newPath) {
+								if (path.charAt(0) != '/') {
+									path = '/' + path;
+								}
+								if (newPath.charAt(0) != '/') {
+									newPath = '/' + newPath;
+								}
+								if (isFileInDirectory(process.cwd() + '/plugins',  path) && isFileInDirectory(process.cwd() + '/plugins',  newPath)) {
+									return fs.renameSync(path, newPath);
+								}
+								return false;
+							},
+							writeFileSync:function(path, string) {
+								if (path.charAt(0) != '/') {
+									path = '/' + path;
+								}
+								if (isFileInDirectory(process.cwd() + '/plugins',  path)) {
+									return fs.writeFileSync(path, string);
+								}
+								return false;
+							},
+							readFileSync:function(path) {
+
+								if (path.charAt(0) != '/') {
+									path = '/' + path;
+								}
+
+								if (isFileInDirectory(process.cwd() + '/plugins', path)) {
+									return fs.readFileSync(path);
+								}
+								return false;
+							},
+							unlinkSync:function(path) {
+								if (path.charAt(0) != '/') {
+									path = '/' + path;
+								}
+
+								if (isFileInDirectory(process.cwd() + '/plugins', path)) {
+									return fs.unlinkSync(path);
+								}
+								return false;
+							},
+							readdirSync:function(dir) {
+								if (dir.charAt(0) != '/') {
+									dir = '/' + dir;
+								}
+
+								if (isFileInDirectory(process.cwd() + '/plugins', dir)) {
+									return fs.readdirSync(dir);
+								}
+								return false;
+							},
+							statSync:function(filepath) {
+								if (filepath.charAt(0) != '/') {
+									filepath = '/' + filepath;
+								}
+
+								if (isFileInDirectory(process.cwd() + '/plugins', filepath)) {
+									return fs.statSync(filepath);
+								}
+								return false;
+							},
+							existsSync:function(filepath) {
+								if (filepath.charAt(0) != '/') {
+									filepath = '/' + filepath;
+								}
+
+								if (isFileInDirectory(process.cwd() + '/plugins', filepath)) {
+									return fs.existsSync(filepath);
+								}
+								return false;
+							}
+						},
+						htmlparser:require('htmlparser2'),
+						finished:0,
+						__dirname:currentPath
+					};
+
+					vm.runInNewContext(fs.readFileSync(currentPath + execPath).toString(), sandbox);
+					updatePluginsJSON()
+					// console.log(util.inspect(sandbox)); 
+				}
+			}
+
+			function updatePluginsJSON(name, modifications) {
+				modifications.forEach(function(mod) {
+					"name":"",
+					"executable":"",
+					"lastUpdated":"",
+					"activated":"1"
+				});
+			}
+
+			function isFileInDirectory(a, b) { //directory, file 
+				if (!fs.existsSync(a)) {
+					return false;
+				}
+				var previouslyExisted = 1;
+				if (!fs.existsSync(b)) { //if it didn't previously exist
+					try {
+						fs.writeFileSync(b, '') //make a few file
+						previouslyExisted = 0;
+					}
+					catch (err) {
+						throw err;
+					}
+				}
+				if (b.indexOf(a) == 0) {
+					var ap = fs.realpathSync(a); //get true paths
+					var bp = fs.realpathSync(b);
+					if (!previouslyExisted) {
+						fs.unlinkSync(b); //if it didn't previously exist, delete it
+					}
+					if (bp.indexOf(ap) == 0) {
+						return true;
+					}
+					else {
+						return false ;
+					}	
+				}
+				if (!previouslyExisted) {
+					fs.unlinkSync(b); //if it didn't previously exist, delete it
+				}
+				return false;
+			}
+
+			function doesInfoFileExist() {
+				if (!fs.existsSync(process.cwd() + '/plugins/plugins.json')) {
+					fs.writeFileSync(process.cwd() + '/plugins/plugins.json', '{plugins:[]}');
+				}
+			}
+
+			function getDocs() {
+				var d = fs.readdirSync(process.cwd() + "/plugins/");
+				var dirs = [];
+				var currentPath = process.cwd() + "/plugins/";
+				d.forEach(function(o){
+					var stat = fs.statSync(currentPath + o);
+					if (stat.isDirectory()) dirs.push(o);
+				});
+
+				var docs = [];
+
+				dirs.forEach(function(o){
+					var foldersInDocs = fs.readdirSync(currentPath + o);
+					if (foldersInDocs.indexOf('output') != -1) {
+						if (fs.statSync(currentPath + o + '/output/').isDirectory()) {
+							var itemsInOutput = fs.readdirSync(currentPath + o + '/output/');
+							if (itemsInOutput.indexOf('output.json') != -1) {
+								if (!fs.statSync(currentPath + o + '/output/output.json').isDirectory()) {
+									docs.push(JSON.parse(fs.readFileSync(currentPath + o + '/output/output.json').toString()));
+								}
+							}
+							else {
+								itemsInOutput.forEach(function(file){
+									if (getExtension(currentPath + o + '/output/' + file) == "json") {
+										docs.push(JSON.parse(fs.readFileSync(currentPath + o + '/output/' + file).toString()));
+									}
+								})
+							}
+						}
+					}
+				});
+				console.log(docs);
+				return docs;
+			}
+
+			function getExtension(filename) {
+				var ext = path.extname(filename||'').split('.');
+				return ext[ext.length - 1];
 			}
 
 			function updateDocs() {
