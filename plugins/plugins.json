@@ -1,8 +1,1 @@
-[
-	{
-		"name":"",
-		"executable":"",
-		"lastUpdated":"",
-		"activated":"1"
-	}
-]
+[{"name":"Python 2.7","executable":"parse.js","lastUpdated":"2014-01-22T14:29:01.870Z","activated":1,"folder":"/Users/loganengstrom/Documents/projects/trustee/plugins/python"},{"folder":"/Users/loganengstrom/Documents/projects/trustee/plugins/python","name":"Python 2.7","executable":"parse.js","lastUpdated":"\"2014-03-22T14:29:01.870Z\"","activated":1},{"folder":"Python 2.7","name":"Python 2.7","executable":"parse.js","lastUpdated":"\"2014-03-22T14:29:01.870Z\"","activated":1}]

@@ -1,8 +1,8 @@
 var pyDocs = {
 	info: {
 		pages:'pages',
-		name:'Python 2.7',
-		source:'python/python-2.7.5-docs-html/',
+		infoFile:'info.json',
+		source:'python-2.7.5-docs-html/', //this is relative from the folder that the documentation is located in 
 		icons: { //if left empty, then use default ones
 			path:'python/resources/',
 			mainIcon:'python-logo.png',

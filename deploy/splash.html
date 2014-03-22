@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
-		<title>Home + Settings</title>
+		<title>Home</title>
 		<style type='text/css'>
 			.row {
 				height:25px;
@@ -93,6 +93,7 @@
 			var vm = require('vm');
 			var util = require('util');
 			var sandbox = require('node-sandbox').Sandbox;
+			var unzip = require('unzip');
 
 			addDocsToTable('Python 2.7', 1);
 
@@ -106,9 +107,8 @@
 			function loadPlugins() {
 				doesInfoFileExist();
 				var potentialPlugins = getPotentialPlugins();
-				var pluginData = getDocs();
-				var plugins = fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString();
-				// if ()
+				// var pluginData = getDocs();
+				// var plugins = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString());
 			}
 
 			function addDocsToTable(name, active, notFoundPath) {
@@ -160,6 +160,10 @@
 			}
 
 			getPotentialPlugins();
+			
+			function differenceBetweenDays(day1, day2) {
+				return Math.abs((day1 - day2)/(86400000)); //(1000 * 60 * 60 * 24));
+			}
 
 			function getPotentialPlugins() {
 				var d = fs.readdirSync(process.cwd() + "/plugins/");
@@ -172,14 +176,71 @@
 				});
 
 				dirs.forEach(function(o){
-					if (fs.existsSync(currentPath + o + "/docInfo.json")) {
-						var info = fs.readFileSync(currentPath + o + "/docInfo.json").toString();
+					if (fs.existsSync(currentPath + o + "/info.json")) {
+						var info = fs.readFileSync(currentPath + o + "/info.json").toString();
 						info = JSON.parse(info);
-						executeParser(info, currentPath + o);
+						// for (var i in overallInfo) {
+						// 	if (overallInfo.name )
+						// }
+						overallInfo.forEach(function(doc) {
+							if (info.name == doc.name) {
+								if (differenceBetweenDays(new Date(), new Date(doc.lastUpdated)) > 25) { //if it has been 30 days since the plugin has last been updated, update the plugin
+									beginParsing(info, currentPath + o);
+								}
+							}
+						});
 					}
-					//if docInfo.json does not exist
+					else {
+						console.log('No info.json! in ' + currentPath + o);
+					}
 				});
 			}
+
+			function beginParsing(info, currentPath) {
+				//download docs into the plugin's folder
+				// downloadFile(info.urlToDocs, currentPath);
+				download(info.urlToDocs, currentPath, info);
+			}
+
+			function download(url, dest, info, currentPath, cb) {
+				var file = fs.createWriteStream(dest + '/' + url.split('/')[url.split('/').length - 1]);
+				file.info = info;
+				file.url = url;
+				file.dest = dest;
+				file.currentPath = currentPath;
+				var request = http.get(url, function(response) {
+					response.pipe(file);
+					file.on('finish', function() {
+						debugger;
+						file.close();
+						switch (getExtension(this.dest + '/' + this.url.split('/')[this.url.split('/').length - 1])) {
+							case 'zip':
+								fs.createReadStream(this.dest + '/' + this.url.split('/')[this.url.split('/').length - 1]).pipe(unzip.Extract({ path: this.dest}));
+								break;
+
+							case 'tar.bz2':
+								console.log('We don\'t support tar.bz2 yet!')
+								return;
+
+							case 'tar.bz':
+								console.log('We don\'t support tar.bz yet!')
+								return;
+
+							case 'tar.gz':
+								console.log('We don\'t support tar.gz yet!')
+								return;
+						}
+						fs.unlinkSync(this.dest + '/' + this.url.split('/')[this.url.split('/').length - 1]);
+						executeParser(this.info, this.currentPath);
+					});
+				});
+			}
+
+			function getExtension(filename) {
+			    var ext = path.extname(filename||'').split('.');
+			    return ext[ext.length - 1];
+			}
+
 
 			function executeParser(info, currentPath) {
 				switch (getExtension(info.executable)) {
@@ -294,20 +355,42 @@
 						finished:0,
 						__dirname:currentPath
 					};
-
-					vm.runInNewContext(fs.readFileSync(currentPath + execPath).toString(), sandbox);
-					updatePluginsJSON()
+					setTimeout(function(){
+							vm.runInNewContext(fs.readFileSync(currentPath + execPath).toString(), sandbox);
+							updatePluginsJSON(info.name, {
+								folder:currentPath.substr((process.cwd() + '/plugins').length),
+								name:info.name,
+								executable:info.executable,
+								lastUpdated:new Date(),
+							});
+						}, 0
+					);
 					// console.log(util.inspect(sandbox)); 
 				}
 			}
 
 			function updatePluginsJSON(name, modifications) {
-				modifications.forEach(function(mod) {
-					"name":"",
-					"executable":"",
-					"lastUpdated":"",
-					"activated":"1"
+				var JSONToWrite = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString());
+				JSONToWrite.forEach(function(o){
+					if (o.name == name) {
+						for (var i in modifications) {
+							o[i] = modifications[i];
+						}
+						fs.writeFileSync(process.cwd() + '/plugins/plugins.json', JSON.stringify(JSONToWrite));
+						return;
+					}
 				});
+
+				JSONToWrite.push({
+					folder:modifications.name,
+					name:modifications.name,
+					executable:modifications.executable,
+					lastUpdated:modifications.lastUpdated,
+					activated:1
+				});
+
+				fs.writeFileSync(process.cwd() + '/plugins/plugins.json', JSON.stringify(JSONToWrite));
+				return;
 			}
 
 			function isFileInDirectory(a, b) { //directory, file 
@@ -349,18 +432,18 @@
 				}
 			}
 
+			//should be in index.html for the actual parsing
 			function getDocs() {
-				var d = fs.readdirSync(process.cwd() + "/plugins/");
 				var dirs = [];
 				var currentPath = process.cwd() + "/plugins/";
-				d.forEach(function(o){
-					var stat = fs.statSync(currentPath + o);
-					if (stat.isDirectory()) dirs.push(o);
-				});
-
+				var overallInfo = JSON.parse(fs.readFileSync(process.cwd() + "/plugins/").toString());
 				var docs = [];
 
-				dirs.forEach(function(o){
+				overallInfo.forEach(function(o) {
+					docs.push(o.folder);
+				})
+
+				dirs.forEach(function(o) {
 					var foldersInDocs = fs.readdirSync(currentPath + o);
 					if (foldersInDocs.indexOf('output') != -1) {
 						if (fs.statSync(currentPath + o + '/output/').isDirectory()) {
