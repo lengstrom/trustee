@@ -220,12 +220,25 @@
 			*/
 
 			function getDocsList() {
-				var plugins = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString());
-				var plugin;
-				plugins.forEach(function(o) {
-					if (fs.existsSync(process.cwd() + '/plugins' + o.folder + '/info.json')) {
-						plugin = JSON.parse(fs.readFileSync(process.cwd() + '/plugins' + o.folder + '/info.json').toString());
+				var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
+				var dirs = []; //array to store all the directories within /plugins
+				var currentPath = process.cwd() + "/plugins/"; //so that we don't have to constantly write the absolute path
+				d.forEach(function(o) { //push every directory listed in the names inside of /plugins
+					var stat = fs.statSync(currentPath + o);
+					if (stat.isDirectory()) dirs.push(o);
+				});
 
+				dirs.forEach(function(o){ //go through every directory in /plugins
+					var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + o + "/info.json").toString());
+					if (info.active) {
+						try {
+							var docs = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dir + "/output.json").toString());
+							importDocs(docs);
+						}
+						catch (e) {
+							throw e;
+							alert('Error loading ' + o);
+						}
 					}
 				});
 			}

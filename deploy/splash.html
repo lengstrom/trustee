@@ -117,6 +117,16 @@
 				else {
 					input.prop('checked', false);
 				}
+
+				input.bind('mouseup', function(){
+					if (this.prop('checked') == true) {
+						setActive(this.dir, 1)
+					}
+					else if (this.prop('checked') == false) {
+						setActive(this.dir, 0)
+					}
+				});
+
 				var title = $("<div>", {class:'docTitle', text:name});
 				var update = $("<div>", {class:'btn updateBtn'});
 				var updateText = $("<div>", {class:'updateText',text:'Update'})
@@ -148,12 +158,12 @@
 					remove[0].row = row;
 					remove[0].dir = dir;
 
+					input[0].dir = dir;
+
 					update.bind('click', updateDocs);
 					remove.bind('click', removeDocs);
 				}
 			}
-
-
 
 			function removeDocs() {
 				rimraf.sync(process.cwd() + '/plugins' + this.dir);
@@ -242,7 +252,6 @@
 			}
 
 			function beginDocsDL(response) {
-
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 					alert("Error getting url " + url);
 					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
@@ -274,9 +283,12 @@
 			}
 
 			function docsDownloaded(response) {
-
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 					alert("Error getting url " + this.file.info.docsURL);
+					setActive(this.file.dir, 0);
+					if (this.file.div) {
+						$(this.file.div).css('background-color', '#c0392b');
+					}
 					rimraf.sync(process.cwd() + '/plugins/'  + this.file.dir); //delete plugins
 					return;
 				}
