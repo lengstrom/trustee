@@ -4,18 +4,19 @@
 		<title>Home</title>
 		<style type='text/css'>
 			.row {
-				height:25px;
-				padding-top: 6px;
+
+				line-height: 25px;
 				width:calc(100% - 2px);
 				width:-webkit-calc(100% - 2px);
 				border-left: 1px solid #232323;
 				border-right: 1px solid #232323;
 				border-bottom: 1px solid #232323;
-				overflow:scroll;
+				overflow-x:scroll;
 			}
 
 			.btn {
-				margin-top: -2px;
+				margin-top: 2px;
+				/*margin-top: -2px;*/
 				margin-right: 5px;
 				float:right;
 				line-height:20px;
@@ -38,16 +39,23 @@
 
 			.docTitle {
 				float:left;
+				overflow:scroll;
 				margin-left:2px;
 				padding-top: 1px;
 			}
 
+			.titleNoError {
+				max-width:550px;
+			}
+
 			.docCheckbox {
+				margin-top: 7px;
 				float:left;
 				margin-left:6px;
 			}
 
 			.docTable {
+				min-height: 25px;
 				margin-top: -15px;
 				width:-webkit-calc(100%-60px);
 				width:calc(100%-60px);
@@ -65,7 +73,23 @@
 				/*margin-top:1px;*/
 			}
 
-			#dledDocsHeader {
+			a {
+				color:#4183c4;
+				cursor:pointer;
+				text-decoration: none;
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+				-khtml-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+
+			a:hover {
+				text-decoration: underline;
+			}
+
+			.docsHeader {
 				cursor:pointer;
 				-webkit-touch-callout: none;
 				-webkit-user-select: none;
@@ -74,17 +98,60 @@
 				-ms-user-select: none;
 				user-select: none;
 			}
+
+			.alertCont {
+				position:absolute;
+				top:50%;
+				left:50%;
+				height:125px;
+				width:350px;
+				margin-top: -63px;
+				margin-left: -200px;
+				z-index: 5;
+				background-color: #232323;
+			}
+
+			.alertTextCont {
+				font-size: 15pt;
+				color:#FFF;
+				line-height: 125px;
+				width:350px;
+				text-align: center;
+			}
+
+			.alertCloseBtn {
+				color:#FFF;
+				position:absolute;
+				top:2px;
+				right:3px;
+				font-size: 120%;
+				cursor:pointer;
+			}
+
+			.alertCloseBtn:hover {
+				color:#c0392b;
+			}
+
 		</style>
 	</head>
 	<body style='font-family:helvetica;color:#232323;'>
 		<!-- <center style='width:100%;'><h1>Home and Settings</h1></center> -->
 		<div style = 'margin-left:2px;margin-top:15px;padding:0;'>
-			<h3 id ='dledDocsHeader'>Downloaded Docs</h3>
-			<div class = 'docTable'>
+			<h3 id ='dledDocsHeader' class = 'docsHeader'>Downloaded Docs</h3>
+			<div class = 'docTable' id = 'dlDocsTable'>
+				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
+				<div style = 'height:25px;position:absolute;padding-left:5px;line-height:25px;'>
+					No docs! Download some below in the <a onclick = 'highlightDl()'>Download Docs</a> section.
+				</div>
+			</div>
+
+			<h3 id ='availDocs' class = 'docsHeader'>Download Docs</h3>
+			<div class = 'docTable' id = 'availDocsTable'>
 				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
 			</div>
 		</div>	
 		<script type = 'text/javascript' src = 'js/jquery.js'></script>
+		<script type = 'text/javascript' src = 'js/jquery.color.js'></script>
 		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
 		<script type = 'text/javascript'>
 			var fs = require('fs');
@@ -94,14 +161,23 @@
 			var unzip = require('unzip');
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
 
-			// addDocsToTable('Python 2.7', 1);
-
+			getPlugins();
 			$('#dledDocsHeader').bind('click', function(){
-				$('.docTable').slideToggle({
-					easing:'linear',
-					duration:300
-				});
+				$('#dlDocsTable').toggle();
 			});
+
+			$('#availDocs').bind('click', function(){
+				$('#availDocsTable').toggle();
+			});
+
+			function getDownloadableDocs() {
+				// if ()
+			}
+
+			function highlightDl() {
+				$('#availDocs').css('background-color','#2ecc71');
+				$('#availDocs').animate({'background-color': '#FFF'}, {duration:600});
+			}
 
 			function loadPlugins() {
 				doesInfoFileExist(); //make sure that the overall plugins.json file exists
@@ -139,17 +215,18 @@
 				row.append(title);
 				row.append(update);
 				row.append(remove);
-				$('.docTable').append(row);
+				$('#dlDocsTable').append(row);
 				//apply handlers if its found
 
 				if (notFoundPath) {
 					$(row).css("background-color", "#c0392b");
 					remove.remove();
 					update.remove();
-					title.html(title.html() + ' - DOCS NOT FOUND. Not found: ' + notFoundPath);
+					title.html(title.html() + ' - Not found: ' + notFoundPath);
 					input.remove();
 				}
 				else {
+					title.addClass('titleNoError');
 					update[0].name = name;
 					update[0].row = row;
 					update[0].dir = dir;
@@ -183,7 +260,6 @@
 					var stat = fs.statSync(currentPath + o);
 					if (stat.isDirectory()) dirs.push(o);
 				});
-
 				dirs.forEach(function(o){ //go through every directory in /plugins
 					checkAndAddDocs(o);
 				});
@@ -223,7 +299,7 @@
 					}
 					else {
 						//err
-						addDocsToTable(info.name, info.active, dir, currentPath + dir);
+						addDocsToTable(info.name, 0, 0, currentPath + dir);
 					}
 
 					addDocsToTable(info.name, info.active, dir);
@@ -231,14 +307,31 @@
 				else {
 					//if err, make row showing that the path is invalid in the list of plugins
 					//add in reload thing later
-					addDocsToTable(info.name, info.active, dir, currentPath + dir);
+					addDocsToTable(dir.substr(1), 0, dir.substr(1), currentPath + dir);
 				}
 			}
-
-			checkAndAddDocs("python-docs-trustee-master");
+			
+			function showAlert(text) {
+				var alertCont = $('<div>', {class:'alertCont'});
+				var alertTextCont = $('<div>', {class:'alertTextCont', text:text});
+				var closeBtn = $('<i>', {class:'fa fa-times alertCloseBtn'});
+				closeBtn[0].div = alertCont;
+				closeBtn.bind('click', function(e) {
+					this.div.remove();
+				});
+				alertCont.append(closeBtn);
+				alertCont.append(alertTextCont);
+				$('body').append(alertCont);
+			}
 
 			function updatePlugin(repoURL, active, div) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. (optional) div - row for the container div in the GUI (optional)
-				downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
+				if (navigator.onLine) { //if we have internet
+					downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
+				}
+				else {
+					showAlert("Can't access internet!");
+					$(div.spinner).remove();
+				}
 			}
 
 			function downloadRepo(url, active, div) {
@@ -253,7 +346,7 @@
 
 			function beginDocsDL(response) {
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
-					alert("Error getting url " + url);
+					showAlert("Error getting url " + url);
 					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
 					return;
 				}
@@ -276,7 +369,7 @@
 					}
 					else {
 						rimraf.sync(process.cwd() + '/plugins/' + dirName);
-						alert('No info.json file in ' + dirName);
+						showAlert('No info.json file in ' + dirName);
 						return;
 					}
 				});
@@ -284,7 +377,7 @@
 
 			function docsDownloaded(response) {
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
-					alert("Error getting url " + this.file.info.docsURL);
+					showAlert("Error getting url " + this.file.info.docsURL);
 					setActive(this.file.dir, 0);
 					if (this.file.div) {
 						$(this.file.div).css('background-color', '#c0392b');
