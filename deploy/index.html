@@ -195,9 +195,40 @@
 				last_query:""
 			};
 
-			// $.get('/plugins/python/output/output.json', function(d){
-			// 	importDocs(JSON.parse(d));
-			// });
+			/*
+
+			Structure of plugins.json:
+			[
+				{
+					"name":"Python 2.7",
+					"executable":"parse.js",
+					"lastUpdated":"2014-01-22T14:29:01.870Z",
+					"activated":1,
+					"folder":"/python"
+				}
+			]
+
+			Structure of each individual plugin file:
+
+			{
+				"name":"Python 2.7.5",
+			        "repo":"https://github.com/meadowstream/python-docs-trustee/",
+				"docsURL":"http://docs.python.org/2.7/archives/python-2.7.5-docs-html.zip",
+				"index":"output.json" //default is output.json
+			}
+
+			*/
+
+			function getDocsList() {
+				var plugins = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString());
+				var plugin;
+				plugins.forEach(function(o) {
+					if (fs.existsSync(process.cwd() + '/plugins' + o.folder + '/info.json')) {
+						plugin = JSON.parse(fs.readFileSync(process.cwd() + '/plugins' + o.folder + '/info.json').toString());
+
+					}
+				});
+			}
 
 			function importDocs(pd) {
 				applyJSON(pd);
