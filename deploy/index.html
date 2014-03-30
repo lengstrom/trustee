@@ -209,30 +209,6 @@
 				last_query:""
 			};
 
-			/*
-
-			Structure of plugins.json:
-			[
-				{
-					"name":"Python 2.7",
-					"executable":"parse.js",
-					"lastUpdated":"2014-01-22T14:29:01.870Z",
-					"activated":1,
-					"folder":"/python"
-				}
-			]
-
-			Structure of each individual plugin file:
-
-			{
-				"name":"Python 2.7.5",
-			        "repo":"https://github.com/meadowstream/python-docs-trustee/",
-				"docsURL":"http://docs.python.org/2.7/archives/python-2.7.5-docs-html.zip",
-				"index":"output.json" //default is output.json
-			}
-
-			*/
-
 			function getDocsList(exemps) {
 				var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
 				var dirs = []; //array to store all the directories within /plugins
