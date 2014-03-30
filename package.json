@@ -4,7 +4,7 @@
   "description": "Open source documentation manager",
   "window": {
     "toolbar": true,
-    // "icon": "icon.png", //need an icon
+    "icon": "resources/logo.png",
     "width": 800,
     "height": 640,
     "frame": true,

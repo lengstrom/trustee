@@ -172,11 +172,9 @@
 		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
 		<script type = "text/javascript">
 			var win = require('nw.gui').Window.get();
-			$('iframe#splashScreen').ready(function(){
-				setTimeout(function(){
-					document.getElementById('splashScreen').contentWindow.loadPlugins(1);
-				}, 75);
-			});
+			document.getElementById('splashScreen').onload = function() {
+				document.getElementById('splashScreen').contentWindow.loadPlugins(1);
+			}
 
 			var fs = require('fs');
 
@@ -574,31 +572,33 @@
 			}
 
 			function home() {
-				setFrameURL();
+				var frame = setFrameURL();
 				if (Trustee.selected) {
 					$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
 					$(Trustee.selected).css('color', '#232323');
 					Trustee.selected = undefined;
 				}
-				setTimeout(function() {
-					document.getElementById('splashScreen').contentWindow.loadPlugins(0);
-				}, 75);
+
+				frame.onload = function() {
+					frame.contentWindow.loadPlugins(0);
+				}
 			}
 
 			function setFrameURL(url) {
 				url = url == undefined ? 'splash.html' : url;
 				if (url == 'splash.html') {
+					document.getElementById('splashScreen').src = url;
 					$('#splashScreen').show();
 					$('#display').hide();
-					document.getElementById('splashScreen').src = url;
+					return document.getElementById('splashScreen');
 				}
 				else {
 					if (!isURLTheSame(document.getElementById('display').src, url)) { //assumes that the second url is a relative path
 						document.getElementById('display').src = url;
 					}
-
 					$('#splashScreen').hide();
 					$('#display').show();
+					return document.getElementById('display');
 				}
 			}
 
