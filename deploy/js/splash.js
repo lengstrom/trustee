@@ -3,7 +3,7 @@ var https = require('https');
 var path = require('path');
 var unzip = require('decompress-zip');
 var rimraf = require('rimraf');
-var dns = require('native-dns');
+var dns = require('dns');
 parent.Trustee.working = 0;
 
 $('#reloadDocs').bind('click', reloadDocs);
@@ -35,25 +35,20 @@ function getDownloadableDocs() {
 	$(spinner.el).css('left', "170px");
 	$(spinner.el).css('margin-top', "-11px");
 	$('#availDocs').append(spinner.el);
-	dns.resolve('www.github.com', 'A', function(err){
-		if (err) {
-			setAvailableDocs(spinner.el);
-		}
-		else {
-			var re = https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
-			re.spinner = spinner.el;
-		}
-	});
-}
-
-function isOnline(cbt, cbf, spinner) {
-	var a = dns.resolve('www.github.com', 'A', dnsResponse);
-
-	a.spinner = spinner;
-	a.cbt = cbt;
-	a.cbf = cbf;
-
-	return this;
+	try {
+	dns.resolve('www.github.com', function(err){
+			if (err) {
+				setAvailableDocs(spinner.el);
+			}
+			else {
+				var re = https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
+				re.spinner = spinner.el;
+			}
+		});
+	}
+	catch(err) {
+		setAvailableDocs(spinner.el);
+	}
 }
 
 function docListDownloaded(response) {
@@ -363,19 +358,25 @@ function showAlert(text) {
 }
 
 function updatePlugin(repoURL, active, div, dir) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
-	dns.resolve('www.github.com', 'A', function(err){
-		if (err) {
-			showAlert("Can't access internet!");
-			$(div.spinner).remove();
-		}
-		else {
-			if (dir) {
-				parent.removeDocs(dir);
+	try {
+		dns.resolve('www.github.com', function(err){
+			if (err) {
+				showAlert("Can't access internet!");
+				$(div.spinner).remove();
 			}
-			parent.Trustee.working++;
-			downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
-		}
-	});
+			else {
+				if (dir) {
+					parent.removeDocs(dir);
+				}
+				parent.Trustee.working++;
+				downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
+			}
+		});
+	}
+	catch (err) {
+		showAlert("Can't access internet!");
+		$(div.spinner).remove();
+	}
 }
 
 function downloadRepo(url, active, div) {

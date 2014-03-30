@@ -1,8 +1,14 @@
 var win = require('nw.gui').Window.get();
 $('#display').hide();
 document.getElementById('splashScreen').onload = function() {
+	try {
 	document.getElementById('splashScreen').contentWindow.loadPlugins(1);
+	}
+	catch (err) {
+
+	}
 };
+
 
 var fs = require('fs');
 
@@ -54,7 +60,6 @@ function getDocsList(exemps) {
 			var info = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + o + "/info.json").toString());
 			if (info.active) {
 				try {
-					debugger;
 					var docs = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + o + "/output.json").toString());
 					importDocs(docs, o);
 				}
@@ -414,7 +419,12 @@ function home() {
 	}
 
 	frame.onload = function() {
-		frame.contentWindow.loadPlugins(0);
+		try {
+			frame.contentWindow.loadPlugins(0);
+		}
+		catch (err) {
+
+		}
 	};
 }
 
