@@ -10,12 +10,14 @@ $('#reloadDocs').bind('click', reloadDocs);
 $('#reloadAvailDocs').bind('click', reloadAvailDocs);
 
 function reloadDocs() {
+	$('.alertCont').remove();
 	$('.downloaded').remove();
 	parent.removeAllPlugins();
 	getPlugins(1);
 }
 
 function reloadAvailDocs() {
+	$('.alertCont').remove();
 	$('.available').remove();
 	getDownloadableDocs();
 }
@@ -167,6 +169,7 @@ function addDocsToTable(name, active, dir, notFoundPath, reason) {
 		row.css('cursor', 'pointer');
 		row[0].dir = dir;
 		row.bind('click', function() {
+			$('.alertCont').remove();
 			var docList = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/docList.json').toString());
 			var found;
 			var dir = this.dir;
@@ -289,7 +292,6 @@ function verifyDocset(currentPath, dir) {
 	var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
 	if (typeof(info.name) != 'string') return false;
 	if (typeof(info.repoURL) != 'string') return false;
-	if (typeof(info.docsURL) != 'string') return false;
 
 	if (!fs.existsSync(currentPath + dir + '/output.json')) return false;
 	//  var info = JSON.parse(fs.readFileSync(currentPath + dir + '/output.json').toString());
@@ -416,14 +418,13 @@ function endDownloadingRepo(response) {
 					this.__active = 1;
 					info.active = 1;
 				}
-
 				fs.writeFileSync(process.cwd() + '/trustee_plugins/' + dirName + '/info.json', JSON.stringify(info));
 				parent.Trustee.working--;
 				if (this.__div) {
 					if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
 						this.__div.row.remove();
 					}
-					else if (this.__div.className == 'row') {
+					else if (this.__div.className.substring(0, 3) == 'row') {
 						$(this.__div).remove();
 					}
 				}
@@ -487,6 +488,7 @@ function getExtension(filename) {
 }
 
 function clickUpdateDocs() {
+	$('.alertCont').remove();
 	var spinner = makeCustomSpinner();
 	this.row.append(spinner.el);
 	this.spinner = spinner.el;

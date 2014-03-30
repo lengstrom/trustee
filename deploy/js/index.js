@@ -54,6 +54,7 @@ function getDocsList(exemps) {
 			var info = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + o + "/info.json").toString());
 			if (info.active) {
 				try {
+					debugger;
 					var docs = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + o + "/output.json").toString());
 					importDocs(docs, o);
 				}
@@ -97,8 +98,13 @@ function removeDocs(dir) {
 function addDocs(dir) {
 	dir = removeSlashes(dir);
 	if (fs.existsSync(process.cwd() + '/trustee_plugins/' + dir)) {
-		var json = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + dir + '/output.json').toString());
-		importDocs(json, dir);
+		try {
+			var json = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + dir + '/output.json').toString());
+			importDocs(json, dir);
+		}
+		catch (e) {
+			throw err;
+		}
 	}
 	else {
 		return false;
