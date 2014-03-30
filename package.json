@@ -11,7 +11,8 @@
     "frame": false,
     "title": "Trustee",
     "resizable": true,
-    "show": false
+    "show":true,
+    "focus":true
   },
   "devDependencies": {
     "grunt-node-webkit-builder": "^0.1.18"
