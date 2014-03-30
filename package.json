@@ -9,6 +9,7 @@
     "height": 640,
     "frame": true,
     "title":"Trustee",
-    "resizable":true
+    "resizable":true,
+    "show": false
   }
 }

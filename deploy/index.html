@@ -1,10 +1,10 @@
 <html>
 	<head>
-		<!-- <link rel="stylesheet" type="text/css" href="css/style.css"> -->
-		<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+		<!-- <link rel="stylesheet" type = "text/css" href = "css/style.css"> -->
+		<link rel="stylesheet" type = "text/css" href = "css/font-awesome.min.css">
 		<!-- Set min-width in node-webkit to 310px -->
 		<title>Trustee Docs</title>
-		<style type='text/css'>
+		<style type = 'text/css'>
 			html, body {
 				margin:0;
 				padding:0;
@@ -136,14 +136,12 @@
 			.folder {
 
 			}
-
-
 		</style>
 	</head>
 	<body>
 		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;padding:0;width:250px;height:100%;'>
 			<div class = 'searchbarCont' style ='position:fixed;'>
-				<input type='text' id = 'search' placeholder='Search docs' onchange="update_done()" onkeyup="update()"/>
+				<input type = 'text' id = 'search' placeholder='Search docs' onchange = "update_done()" onkeyup="update()"/>
 				<div class='homebtn' style = 'position:absolute;right:0px; top:15px;cursor:pointer;' onclick = 'home();'>
 					<i class="fa fa-home fa-2x"></i>
 				</div>
@@ -165,36 +163,43 @@
 			</div>
 		</div>
 		<div id = 'rcol' style = 'position:relative;float:left;margin:0;width:400px;height:100%;'>
-			<iframe id = 'splashScreen' src="splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;'></iframe>
-			<iframe id = 'display' src="" style = 'width:100%; height:100%;border:none;padding:0;margin:0;' nwdisable nwfaketop></iframe>
+			<iframe id = 'splashScreen' src = "splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;'></iframe>
+			<iframe id = 'display' src = "" style = 'width:100%; height:100%;border:none;padding:0;margin:0;' nwdisable nwfaketop></iframe>
 			<div id = 'displayCover' style = 'position:absolute;width:100%;height:100%;top:0;left:0;background-color:rgba(0, 0, 0, 0);z-index:-1;'></div>
 		</div>
+		<script type = 'text/javascript' src = "js/winstate.js"></script>
+		<script type = 'text/javascript' src = 'js/jquery.js'></script>
+		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
+		<script type = "text/javascript">
+			var win = require('nw.gui').Window.get();
 
-		<script type='text/javascript' src='js/jquery.js'></script>
-		<script type='text/javascript' src='js/spin.min.js'></script>
-		<script type="text/javascript">
 			$('iframe#splashScreen').ready(function(){
 				setTimeout(function(){
 					document.getElementById('splashScreen').contentWindow.loadPlugins(1);
-				}, 50);
+				}, 75);
 			});
 
 			var fs = require('fs');
-			var gui = require('nw.gui');
-			var win = gui.Window.get();
 
-			if (win.height != window.screen.availHeight || win.width != window.screen.availWidth) {
-				win.maximize();
-			}
+			var Trustee = {
+				working:0,
+				selected:undefined,
+				docs: {},
+				click:0,
+				cumulative:[],
+				last_query:""
+			};
 
 			win.on('close', function() {
 				if (Trustee.working) {
 					var c = confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')
 					if (c) {
+						saveWindowState();
 						win.close(true);
 					}
 				}
 				else {
+					saveWindowState();
 					win.close(true);
 				}
 			});
@@ -209,15 +214,6 @@
 			$(window).resize(windowResize);
 			$('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
 			$('.searchbarCont').css('width', $('#lcol').width() + 'px');
-
-			var Trustee = {
-				working:0,
-				selected:undefined,
-				docs: {},
-				click:0,
-				cumulative:[],
-				last_query:""
-			};
 
 			function getDocsList(exemps) {
 				var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
@@ -587,7 +583,7 @@
 				}
 				setTimeout(function() {
 					document.getElementById('splashScreen').contentWindow.loadPlugins(0);
-				}, 50);
+				}, 75);
 			}
 
 			function setFrameURL(url) {
