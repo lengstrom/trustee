@@ -311,7 +311,15 @@ function checkAndAddDocs(dir, active) {
 	}
 
 	if (fs.existsSync(currentPath + dir + "/info.json")) { //if the info file exists, proceed
-		var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
+		try {
+			var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
+		}
+		catch (err) {
+			parent.Trustee.working--;
+			showAlert('Bad info file.')
+			addDocsToTable(dir, 0, dir.substr(1), dir, "info.json formatted incorrectly");
+			return false;
+		}
 		if (info.active === undefined) {
 			info.active = 1;
 			fs.writeFileSync(process.cwd() + '/trustee_plugins/' + dirName + '/info.json', JSON.stringify(info));
@@ -374,11 +382,13 @@ function downloadRepo(url, active, div) {
 	file.active = active;
 	file.filename = filename;
 	file.div = div;
+	debugger;
 	request = https.get(url, endDownloadingRepo);
 	request.file = file;
 }
 
 function endDownloadingRepo(response) {
+	debugger;
 	if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 		showAlert("Error getting url " + url);
 		rimraf.sync(process.cwd() + '/trustee_plugins/'  + this.filename); //delete zip file
@@ -387,6 +397,7 @@ function endDownloadingRepo(response) {
 	}
 	response.pipe(this.file);
 	this.file.on('finish', function() { //callback for when the file is finished being downloaded
+		debugger;
 		this.close();
 		// var extractor = unzip.Extract({ path: process.cwd() + '/trustee_plugins/'});
 		var extractor = new unzip(process.cwd() + '/trustee_plugins/'  + this.filename);
