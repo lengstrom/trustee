@@ -149,7 +149,10 @@
 	<body style='font-family:helvetica;color:#232323;'>
 		<!-- <center style='width:100%;'><h1>Home and Settings</h1></center> -->
 		<div style = 'margin-left:2px;margin-top:15px;padding:0;'>
-			<h3 id ='dledDocsHeader' class = 'docsHeader'>Downloaded Docs</h3>
+			<div>
+				<h3 id ='dledDocsHeader' class = 'docsHeader'>Downloaded Docs</h3>
+				<i title='Reload docs' class = "fa fa-refresh" id = 'reloadDocs' style = 'position:absolute;right:8px;margin-top:-35px;cursor:pointer;'></i>
+			</div>
 			<div class = 'docTable' id = 'dlDocsTable'>
 				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
 				<div id = 'noDocs' style = 'height:25px;position:absolute;padding-left:5px;line-height:25px;'>
@@ -157,7 +160,10 @@
 				</div>
 			</div>
 
-			<h3 id ='availDocs' class = 'docsHeader'>Download Docs</h3>
+			<div>
+				<h3 id ='availDocs' class = 'docsHeader'>Download Docs</h3>
+				<i title = 'Reload docs list' class = "fa fa-refresh" id = 'reloadAvailDocs' style = 'position:absolute;right:8px;margin-top:-35px;cursor:pointer;'></i>
+			</div>
 			<div class = 'docTable' id = 'availDocsTable'>
 				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
 			</div>
@@ -174,7 +180,21 @@
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
 			var dns = require('native-dns');
 			window.__working = 0;
-			loadPlugins(0);
+			// loadPlugins(0);
+
+			$('#reloadDocs').bind('click', reloadDocs);
+			$('#reloadAvailDocs').bind('click', reloadAvailDocs);
+
+			function reloadDocs() {
+				$('.downloaded').remove();
+				parent.removeAllPlugins();
+				getPlugins(1);
+			}
+
+			function reloadAvailDocs() {
+				$('.available').remove();
+				getDownloadableDocs();
+			}
 
 			$('#dledDocsHeader').bind('click', function() {
 				$('#dlDocsTable').toggle();
@@ -468,6 +488,10 @@
 
 				if (fs.existsSync(currentPath + dir + "/info.json")) { //if the info file exists, proceed
 					var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
+					if (info.active == undefined) {
+						info.active = 1;
+						fs.writeFileSync(process.cwd() + '/plugins/' + dirName + '/info.json', JSON.stringify(info));
+					}
 					if (verifyDocset(currentPath, dir)) {
 						if (differenceBetweenDays(new Date(), new Date(info.lastUpdated)) > 25) { //if it has been 30 days since the plugin has last been updated, update the plugin
 							updatePlugin(info.repoURL, info.active, dir);
@@ -511,7 +535,10 @@
 						$(div.spinner).remove();
 					}
 					else {
-						parent.removeDocs(dir);
+						debugger;
+						if (dir) {
+							parent.removeDocs(dir);
+						}
 						window.__working++;
 						downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
 					}
@@ -519,6 +546,7 @@
 			}
 
 			function downloadRepo(url, active, div) {
+				debugger;
 				var filename = url.split('/')[4] + '.zip';
 				var file = fs.createWriteStream(process.cwd() + '/plugins/' + filename);
 				file.active = active;
@@ -529,6 +557,7 @@
 			}
 
 			function endDownloadingRepo(response) {
+				debugger;
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 					showAlert("Error getting url " + url);
 					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
@@ -538,6 +567,7 @@
 				response.pipe(this.file);
 				this.file.on('finish', function() { //callback for when the file is finished being downloaded
 					this.close(); 
+					debugger;
 					// var extractor = unzip.Extract({ path: process.cwd() + '/plugins/'});
 					var extractor = new unzip(process.cwd() + '/plugins/'  + this.filename);
 					extractor.__filename = this.filename;
@@ -549,6 +579,7 @@
 					});
 
 					extractor.on('extract', function(log) {
+						debugger;
 						rimraf.sync(this.filename); //delete zip file
 						var dirName = this.__filename.substr(0, this.__filename.length - 4) + '-master';
 						if (fs.existsSync(process.cwd() + '/plugins/' + dirName + '/info.json')) {
@@ -664,6 +695,7 @@
 			}
 
 			function clickUpdateDocs() {
+				debugger;
 				var spinner = makeCustomSpinner();
 				this.row.append(spinner.el);
 				this.spinner = spinner.el;

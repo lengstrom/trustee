@@ -176,7 +176,7 @@
 			$('iframe#splashScreen').ready(function(){
 				setTimeout(function(){
 					document.getElementById('splashScreen').contentWindow.loadPlugins(1);
-				}, 100); //wait 100 ms before calling to give the window time to load
+				}, 50);
 			});
 
 			var fs = require('fs');
@@ -577,6 +577,9 @@
 					$(Trustee.selected).css('color', '#232323');
 					Trustee.selected = undefined;
 				}
+				setTimeout(function() {
+					document.getElementById('splashScreen').contentWindow.loadPlugins(0);
+				}, 50);
 			}
 
 			function setFrameURL(url) {
