@@ -60,7 +60,7 @@ function docListDownloaded(response) {
 		showAlert("Error getting list of docs");
 		return;
 	}
-	var file = fs.createWriteStream(process.cwd() + '/plugins/docList.json');
+	var file = fs.createWriteStream(process.cwd() + '/trustee_plugins/docList.json');
 	response.pipe(file);
 	file.spinner = this.spinner;
 	file.on('finish', function() { //callback for when the file is finished being downloaded
@@ -70,9 +70,9 @@ function docListDownloaded(response) {
 }
 
 function setAvailableDocs(spinner) {
-	if (fs.existsSync(process.cwd() + '/plugins/docList.json')) {
+	if (fs.existsSync(process.cwd() + '/trustee_plugins/docList.json')) {
 		var dirs = getDirs();
-		var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+		var info = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/docList.json').toString());
 		info.forEach(function(o) {
 			var repoName = o.repoURL.split('/')[4] + '-master';
 			if (dirs.indexOf(repoName) == -1) {
@@ -167,7 +167,7 @@ function addDocsToTable(name, active, dir, notFoundPath, reason) {
 		row.css('cursor', 'pointer');
 		row[0].dir = dir;
 		row.bind('click', function() {
-			var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+			var docList = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/docList.json').toString());
 			var found;
 			var dir = this.dir;
 			var row = this;
@@ -211,7 +211,7 @@ function addDocsToTable(name, active, dir, notFoundPath, reason) {
 }
 
 function clickRemoveDocs() {
-	rimraf.sync(process.cwd() + '/plugins' + this.dir);
+	rimraf.sync(process.cwd() + '/trustee_plugins' + this.dir);
 	this.row.remove();
 	if (!$('.downloaded').length) {
 		$('#noDocs').show();
@@ -220,8 +220,8 @@ function clickRemoveDocs() {
 	var dir = this.dir;
 	var name = this.name;
 	parent.removeDocs(dir);
-	if (fs.existsSync(process.cwd() + '/plugins/docList.json')) {
-		var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+	if (fs.existsSync(process.cwd() + '/trustee_plugins/docList.json')) {
+		var docList = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/docList.json').toString());
 		var found;
 		docList.forEach(function(o) {
 			if (o.repoURL.split('/')[4] + '-master' == dir) {
@@ -248,7 +248,7 @@ function differenceBetweenDays(day1, day2) {
 function getPlugins(make) {
 	var dirs = getDirs();
 	var exemp = [];
-	dirs.forEach(function(o) { //go through every directory in /plugins
+	dirs.forEach(function(o) { //go through every directory in /trustee_plugins
 		var w = checkAndAddDocs(o);
 		if (!w || !make) {
 			exemp.push(o);
@@ -259,10 +259,10 @@ function getPlugins(make) {
 }
 
 function getDirs() {
-	var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
-	var dirs = []; //array to store all the directories within /plugins
-	var currentPath = process.cwd() + "/plugins/"; //so that we don't have to constantly write the absolute path
-	d.forEach(function(o) { //push every directory listed in the names inside of /plugins
+	var d = fs.readdirSync(process.cwd() + "/trustee_plugins"); //get names of files / directories inside /trustee_plugins
+	var dirs = []; //array to store all the directories within /trustee_plugins
+	var currentPath = process.cwd() + "/trustee_plugins/"; //so that we don't have to constantly write the absolute path
+	d.forEach(function(o) { //push every directory listed in the names inside of /trustee_plugins
 		var stat = fs.statSync(currentPath + o);
 		if (stat.isDirectory()) dirs.push(o);
 	});
@@ -274,9 +274,9 @@ function setActive(dir, state) {
 	if (dir.charAt(0) != '/') {
 		dir = '/' + dir;
 	}
-	var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins' + dir + "/info.json").toString());
+	var info = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins' + dir + "/info.json").toString());
 	info.active = state;
-	fs.writeFileSync(process.cwd() + '/plugins/' + dir + "/info.json", JSON.stringify(info));
+	fs.writeFileSync(process.cwd() + '/trustee_plugins/' + dir + "/info.json", JSON.stringify(info));
 	if (state === 0) {
 		parent.removeDocs(dir);
 	}
@@ -305,7 +305,7 @@ function checkAndAddDocs(dir, active) {
 		setActive(dir, 0);
 	}
 
-	var currentPath = process.cwd() + "/plugins";
+	var currentPath = process.cwd() + "/trustee_plugins";
 	if (dir.charAt(0) != '/') {
 		dir = '/' + dir;
 	}
@@ -314,7 +314,7 @@ function checkAndAddDocs(dir, active) {
 		var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
 		if (info.active === undefined) {
 			info.active = 1;
-			fs.writeFileSync(process.cwd() + '/plugins/' + dirName + '/info.json', JSON.stringify(info));
+			fs.writeFileSync(process.cwd() + '/trustee_plugins/' + dirName + '/info.json', JSON.stringify(info));
 		}
 		if (verifyDocset(currentPath, dir)) {
 			if (differenceBetweenDays(new Date(), new Date(info.lastUpdated)) > 25) { //if it has been 30 days since the plugin has last been updated, update the plugin
@@ -370,7 +370,7 @@ function updatePlugin(repoURL, active, div, dir) { //repoURL - string containing
 
 function downloadRepo(url, active, div) {
 	var filename = url.split('/')[4] + '.zip';
-	var file = fs.createWriteStream(process.cwd() + '/plugins/' + filename);
+	var file = fs.createWriteStream(process.cwd() + '/trustee_plugins/' + filename);
 	file.active = active;
 	file.filename = filename;
 	file.div = div;
@@ -381,15 +381,15 @@ function downloadRepo(url, active, div) {
 function endDownloadingRepo(response) {
 	if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 		showAlert("Error getting url " + url);
-		rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
+		rimraf.sync(process.cwd() + '/trustee_plugins/'  + this.filename); //delete zip file
 		parent.Trustee.working--;
 		return;
 	}
 	response.pipe(this.file);
 	this.file.on('finish', function() { //callback for when the file is finished being downloaded
 		this.close();
-		// var extractor = unzip.Extract({ path: process.cwd() + '/plugins/'});
-		var extractor = new unzip(process.cwd() + '/plugins/'  + this.filename);
+		// var extractor = unzip.Extract({ path: process.cwd() + '/trustee_plugins/'});
+		var extractor = new unzip(process.cwd() + '/trustee_plugins/'  + this.filename);
 		extractor.__filename = this.filename;
 		extractor.__div = this.div;
 		extractor.__active = this.active;
@@ -401,15 +401,15 @@ function endDownloadingRepo(response) {
 		extractor.on('extract', function(log) {
 			rimraf.sync(this.filename); //delete zip file
 			var dirName = this.__filename.substr(0, this.__filename.length - 4) + '-master';
-			if (fs.existsSync(process.cwd() + '/plugins/' + dirName + '/info.json')) {
-				var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dirName + '/info.json').toString());
+			if (fs.existsSync(process.cwd() + '/trustee_plugins/' + dirName + '/info.json')) {
+				var info = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + dirName + '/info.json').toString());
 				info.lastUpdated = JSON.stringify(new Date());
 				if (info.active == undefined) {
 					this.__active = 1;
 					info.active = 1;
 				}
 
-				fs.writeFileSync(process.cwd() + '/plugins/' + dirName + '/info.json', JSON.stringify(info));
+				fs.writeFileSync(process.cwd() + '/trustee_plugins/' + dirName + '/info.json', JSON.stringify(info));
 				parent.Trustee.working--;
 				if (this.__div) {
 					if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
@@ -427,7 +427,7 @@ function endDownloadingRepo(response) {
 		});
 
 		extractor.extract({
-			path: process.cwd() + '/plugins/',
+			path: process.cwd() + '/trustee_plugins/',
 			filter: function (file) {
 				return file.type !== "SymbolicLink";
 			}
@@ -476,8 +476,8 @@ function isFileInDirectory(a, b) { //directory, file 
 //should be in index.html for the actual parsing
 function getDocs() {
 	var dirs = [];
-	var currentPath = process.cwd() + "/plugins/";
-	var overallInfo = JSON.parse(fs.readFileSync(process.cwd() + "/plugins/").toString());
+	var currentPath = process.cwd() + "/trustee_plugins/";
+	var overallInfo = JSON.parse(fs.readFileSync(process.cwd() + "/trustee_plugins/").toString());
 	var docs = [];
 
 	overallInfo.forEach(function(o) {
@@ -523,7 +523,7 @@ function clickUpdateDocs() {
 		url = this.url;
 	}
 	else {
-		url = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + this.dir + "/info.json").toString()).repoURL;
+		url = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + this.dir + "/info.json").toString()).repoURL;
 	}
 
 	updatePlugin(url, 1, this, this.dir);

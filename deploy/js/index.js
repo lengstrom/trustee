@@ -41,9 +41,9 @@ $('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').
 $('.searchbarCont').css('width', $('#lcol').width() + 'px');
 
 function getDocsList(exemps) {
-	var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
+	var d = fs.readdirSync(process.cwd() + "/trustee_plugins"); //get names of files / directories inside /plugins
 	var dirs = []; //array to store all the directories within /plugins
-	var currentPath = process.cwd() + "/plugins/"; //so that we don't have to constantly write the absolute path
+	var currentPath = process.cwd() + "/trustee_plugins/"; //so that we don't have to constantly write the absolute path
 	d.forEach(function(o) { //push every directory listed in the names inside of /plugins
 		var stat = fs.statSync(currentPath + o);
 		if (stat.isDirectory()) dirs.push(o);
@@ -51,10 +51,10 @@ function getDocsList(exemps) {
 
 	dirs.forEach(function(o) { //go through every directory in /plugins
 		if (exemps.indexOf(o) == -1) {
-			var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + o + "/info.json").toString());
+			var info = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + o + "/info.json").toString());
 			if (info.active) {
 				try {
-					var docs = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + o + "/output.json").toString());
+					var docs = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + o + "/output.json").toString());
 					importDocs(docs, o);
 				}
 				catch (e) {
@@ -96,8 +96,8 @@ function removeDocs(dir) {
 
 function addDocs(dir) {
 	dir = removeSlashes(dir);
-	if (fs.existsSync(process.cwd() + '/plugins/' + dir)) {
-		var json = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dir + '/output.json').toString());
+	if (fs.existsSync(process.cwd() + '/trustee_plugins/' + dir)) {
+		var json = JSON.parse(fs.readFileSync(process.cwd() + '/trustee_plugins/' + dir + '/output.json').toString());
 		importDocs(json, dir);
 	}
 	else {
@@ -119,13 +119,13 @@ function removeAllPlugins() {
 }
 
 function addDocsToIndex(pd, o) {
-	var mainIcon = '/plugins/' + o + pd.info.icons.path + pd.info.icons.mainIcon;
+	var mainIcon = '/trustee_plugins/' + o + pd.info.icons.path + pd.info.icons.mainIcon;
 	var path;
 	if (pd.info.source.charAt(0) != '/') {
-		path = '/plugins/' + o + '/' + pd.info.source;
+		path = '/trustee_plugins/' + o + '/' + pd.info.source;
 	}
 	else {
-		path = '/plugins/' + o + pd.info.source;
+		path = '/trustee_plugins/' + o + pd.info.source;
 	}
 
 	var cumulative = [];
@@ -135,7 +135,7 @@ function addDocsToIndex(pd, o) {
 	}
 
 	types.forEach(function(type) {
-		var secondaryIcon = pd.info.icons.docsIcons[type].search('/') == -1 ? 'img/objects/' + pd.info.icons.docsIcons[type] : '/plu	gins/' + pd.info.icons.path + pd.info.icons[type];
+		var secondaryIcon = pd.info.icons.docsIcons[type].search('/') == -1 ? 'img/objects/' + pd.info.icons.docsIcons[type] : '/trustee_plugins/' + pd.info.icons.path + pd.info.icons[type];
 		Object.keys(pd.pages).forEach(function(p) {
 			pd.pages[p][type].forEach(function(p) {
 				var sPath = path + p[1]; //specific path to the file
@@ -181,12 +181,12 @@ function applyJSON(json, dir) {
 	if (json.info.icons.path.charAt(0) != '/') {
 		json.info.icons.path = '/' + json.info.icons.path;
 	}
-	var path = '/plugins/' + dir + json.info.source;
+	var path = '/trustee_plugins/' + dir + json.info.source;
 	var pages = json.info.pages;
 	var items = [];
 	var docsHeader = $('<div>', {class:'itemBar folder'});
 	var folderImg = $('<img>', {src:"img/folder-open.png"});
-	var mainIconSRC = '/plugins/' + dir + json.info.icons.path + json.info.icons.mainIcon;
+	var mainIconSRC = '/trustee_plugins/' + dir + json.info.icons.path + json.info.icons.mainIcon;
 	var iconImg = $('<img>', {src:mainIconSRC, class:'iconImg'});
 	var folderTitle = $('<span>', {class: 'itemInner i0'});
 	var folderText = $('<span>', {class: 'itemText', text:json.info.name});
@@ -200,7 +200,7 @@ function applyJSON(json, dir) {
 	$('#tree').append(setDIV);
 	for (var i in json.docs) {
 		// addFolder(name, indentationLevel, elem, imgPath, inner, ct, spinner);
-		var src = json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i];
+		var src = json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/trustee_plugins/' + json.info.icons.path + json.info.icons[i];
 		addFolder(i, 1, setDIV, src, json.info.name, i, path, dir);
 	}
 
