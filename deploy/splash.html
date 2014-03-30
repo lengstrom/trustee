@@ -179,7 +179,7 @@
 			var unzip = require('decompress-zip');
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
 			var dns = require('native-dns');
-			window.__working = 0;
+			parent.Trustee.working = 0;
 			// loadPlugins(0);
 
 			$('#reloadDocs').bind('click', reloadDocs);
@@ -539,7 +539,7 @@
 						if (dir) {
 							parent.removeDocs(dir);
 						}
-						window.__working++;
+						parent.Trustee.working++;
 						downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
 					}
 				});
@@ -561,7 +561,7 @@
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 					showAlert("Error getting url " + url);
 					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
-					window.__working--;
+					parent.Trustee.working--;
 					return;
 				}
 				response.pipe(this.file);
@@ -575,7 +575,7 @@
 					extractor.__active = this.active;
 					extractor.on('error', function(err) {
 						throw err;
-						window.__working--;
+						parent.Trustee.working--;
 					});
 
 					extractor.on('extract', function(log) {
@@ -591,7 +591,7 @@
 							}
 
 							fs.writeFileSync(process.cwd() + '/plugins/' + dirName + '/info.json', JSON.stringify(info));
-							window.__working--;
+							parent.Trustee.working--;
 							if (this.__div) {
 								if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
 									this.__div.row.remove();

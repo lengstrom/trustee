@@ -183,14 +183,21 @@
 			var gui = require('nw.gui');
 			var win = gui.Window.get();
 
-			// win.on('close', function() {
-			// 	if (window.__working) {
-			// 		var c = confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')
-			// 		if (c) {
-			// 			Window.close(true);
-			// 		}
-			// 	}
-			// });
+			if (win.height != window.screen.availHeight || win.width != window.screen.availWidth) {
+				win.maximize();
+			}
+
+			win.on('close', function() {
+				if (Trustee.working) {
+					var c = confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')
+					if (c) {
+						win.close(true);
+					}
+				}
+				else {
+					win.close(true);
+				}
+			});
 
 			$('#separator').bind('mousedown', function(e) {
 				document.body.style.cursor = 'ew-resize';
@@ -204,6 +211,7 @@
 			$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 
 			var Trustee = {
+				working:0,
 				selected:undefined,
 				docs: {},
 				click:0,
