@@ -382,13 +382,11 @@ function downloadRepo(url, active, div) {
 	file.active = active;
 	file.filename = filename;
 	file.div = div;
-	debugger;
 	request = https.get(url, endDownloadingRepo);
 	request.file = file;
 }
 
 function endDownloadingRepo(response) {
-	debugger;
 	if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 		showAlert("Error getting url " + url);
 		rimraf.sync(process.cwd() + '/trustee_plugins/'  + this.filename); //delete zip file
@@ -397,7 +395,6 @@ function endDownloadingRepo(response) {
 	}
 	response.pipe(this.file);
 	this.file.on('finish', function() { //callback for when the file is finished being downloaded
-		debugger;
 		this.close();
 		// var extractor = unzip.Extract({ path: process.cwd() + '/trustee_plugins/'});
 		var extractor = new unzip(process.cwd() + '/trustee_plugins/'  + this.filename);
@@ -482,41 +479,6 @@ function isFileInDirectory(a, b) { //directory, file 
 		rimraf.sync(b); //if it didn't previously exist, delete it
 	}
 	return false;
-}
-
-//should be in index.html for the actual parsing
-function getDocs() {
-	var dirs = [];
-	var currentPath = process.cwd() + "/trustee_plugins/";
-	var overallInfo = JSON.parse(fs.readFileSync(process.cwd() + "/trustee_plugins/").toString());
-	var docs = [];
-
-	overallInfo.forEach(function(o) {
-		docs.push(o.folder);
-	});
-
-	dirs.forEach(function(o) {
-		var foldersInDocs = fs.readdirSync(currentPath + o);
-		if (foldersInDocs.indexOf('output') != -1) {
-			if (fs.statSync(currentPath + o + '/output/').isDirectory()) {
-				var itemsInOutput = fs.readdirSync(currentPath + o + '/output/');
-				if (itemsInOutput.indexOf('output.json') != -1) {
-					if (!fs.statSync(currentPath + o + '/output/output.json').isDirectory()) {
-						docs.push(JSON.parse(fs.readFileSync(currentPath + o + '/output/output.json').toString()));
-					}
-				}
-				else {
-					itemsInOutput.forEach(function(file) {
-						if (getExtension(currentPath + o + '/output/' + file) == "json") {
-							docs.push(JSON.parse(fs.readFileSync(currentPath + o + '/output/' + file).toString()));
-						}
-					});
-				}
-			}
-		}
-	});
-
-	return docs;
 }
 
 function getExtension(filename) {
