@@ -64,7 +64,7 @@ function docListDownloaded(response) {
 	response.pipe(file);
 	file.spinner = this.spinner;
 	file.on('finish', function() { //callback for when the file is finished being downloaded
-		this.close(); 
+		this.close();
 		setAvailableDocs(this.spinner);
 	});
 }
@@ -81,7 +81,7 @@ function setAvailableDocs(spinner) {
 		});
 	}
 	else {
-		showAlert("No internet and no archived copy of the documentation - could not fetch docs.")
+		showAlert("No internet and no archived copy of the documentation - could not fetch docs.");
 	}
 	if (spinner) {
 		$(spinner).remove();
@@ -112,7 +112,7 @@ function addAvailableDoc(name, url) {
 	var download = $("<div>", {class:'btn updateBtn downloadBtn'});
 	download[0].row = row;
 	download[0].url = url;
-	var downloadText = $("<div>", {class:'downloadText',text:'Download'})
+	var downloadText = $("<div>", {class:'downloadText',text:'Download'});
 	download.bind('click', clickUpdateDocs);
 	row.append(title);
 	download.append(downloadText);
@@ -139,14 +139,14 @@ function addDocsToTable(name, active, dir, notFoundPath, reason) {
 		if ($(this).prop('checked')) {
 			setActive(this.dir, 1);
 		}
-		else if ($(this).prop('checked') == false) {
+		else if ($(this).prop('checked') === false) {
 			setActive(this.dir, 0);
 		}
 	});
 
 	var title = $("<div>", {class:'docTitle', text:name});
 	var update = $("<div>", {class:'btn updateBtn'});
-	var updateText = $("<div>", {class:'updateText',text:'Update'})
+	var updateText = $("<div>", {class:'updateText',text:'Update'});
 	update.append(updateText);
 	var remove = $("<div>", {class:'btn removeBtn'});
 	var removeText = $("<div>", {class:'removeText',text:'Remove'});
@@ -175,7 +175,7 @@ function addDocsToTable(name, active, dir, notFoundPath, reason) {
 				if (o.repoURL.split('/')[4] + '-master' == dir) {
 					found = 1;
 					var spinner = makeCustomSpinner();
-					$('#dledDocsHeader').append(spinner.el)
+					$('#dledDocsHeader').append(spinner.el);
 					row.spinner = spinner.el;
 					$(row.spinner).css('left', "200px");
 					$(row.spinner).css('margin-top', "-11px");
@@ -277,7 +277,7 @@ function setActive(dir, state) {
 	var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins' + dir + "/info.json").toString());
 	info.active = state;
 	fs.writeFileSync(process.cwd() + '/plugins/' + dir + "/info.json", JSON.stringify(info));
-	if (state == 0) {
+	if (state === 0) {
 		parent.removeDocs(dir);
 	}
 	else {
@@ -301,8 +301,8 @@ function checkAndAddDocs(dir, active) {
 	if (active) {
 		setActive(dir, 1);
 	}
-	else if (active == 0) {
-		setActive(dir, 0);	
+	else if (active === 0) {
+		setActive(dir, 0);
 	}
 
 	var currentPath = process.cwd() + "/plugins";
@@ -312,7 +312,7 @@ function checkAndAddDocs(dir, active) {
 
 	if (fs.existsSync(currentPath + dir + "/info.json")) { //if the info file exists, proceed
 		var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
-		if (info.active == undefined) {
+		if (info.active === undefined) {
 			info.active = 1;
 			fs.writeFileSync(process.cwd() + '/plugins/' + dirName + '/info.json', JSON.stringify(info));
 		}
