@@ -245,21 +245,26 @@
 
 			function removeDocs(dir) {
 				dir = removeSlashes(dir);
-				Trustee.docs.forEach(function(o) {
-					if (o[2] == dir) {
-						o[1][0].remove();
-						o[1][1].remove();
+				for (var i in Trustee.docs) {
+					if (Trustee.docs[i][2] == dir) {
+						Trustee.docs[i][1][0].remove();
+						Trustee.docs[i][1][1].remove();
+						delete Trustee.docs[i];
+						Trustee.cumulative = [];
+						for (var i in Trustee.docs) {
+							Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(Trustee.docs[i][0], Trustee.docs[i][2]));
+						}
 						return true;
 					}
 					return false;
-				});
+				}
 			}
 
 			function addDocs(dir) {
 				dir = removeSlashes(dir);
-				if (fs.existsSync(process.cwd + '/plugins/' + dir)) {
-					var json = JSON.parse(fs.readFileSync(process.cwd + '/plugins/' + dir + '/output.json').toString());
-					importDocs(pd, dir);
+				if (fs.existsSync(process.cwd() + '/plugins/' + dir)) {
+					var json = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dir + '/output.json').toString());
+					importDocs(json, dir);
 				}
 				else {
 					return false;
@@ -269,7 +274,7 @@
 			function importDocs(pd, o) {
 				o = removeSlashes(o);
 				var items = applyJSON(pd, o);
-				Trustee.docs[pd.info.name] = [pd, items, o]; //JSON, jQuery objects for overall container, then dir 
+				Trustee.docs[o] = [pd, items, o]; //JSON, jQuery objects for overall container, then dir 
 				Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(pd, o));
 			}
 
@@ -350,7 +355,7 @@
 				for (var i in json.docs) {
 					// addFolder(name, indentationLevel, elem, imgPath, inner, ct, spinner);
 					var src = json.info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + json.info.icons.docsIcons[i] : '/plugins/' + json.info.icons.path + json.info.icons[i];
-					addFolder(i, 1, setDIV, src, json.info.name, i, path);
+					addFolder(i, 1, setDIV, src, json.info.name, i, path, dir);
 				}
 
 				docsHeader[0].setDIV = setDIV;
@@ -459,7 +464,7 @@
 				}, 2);
 			}
 
-			function addFolder(name, indentationLevel, elem, imgPath, Docs, child, path) {
+			function addFolder(name, indentationLevel, elem, imgPath, Docs, child, path, dir) {
 				var setDIV = $('<div>');
 				var folder = $('<div>', {class:"itemBar folder"});
 				var folderImg = $('<img>', {src:"img/folder-closed.png"});
@@ -477,6 +482,8 @@
 				folder[0].folderImg = folderImg;
 				folder[0].path = path;
 				folder[0].rendered = 0;
+				folder[0].dir = dir;
+				folder[0].child = child;
 				folder.append(folderTitle);
 				folderTitle.prepend(folderImg)
 				elem.append(folder);
@@ -489,7 +496,7 @@
 					if (!this.rendered) {
 						var spinner = makeCustomSpinner();
 						this.appendChild(spinner.el);
-						makeItemComplex(Trustee.docs[Docs][0].docs[child], spinner, this.src, this.path, this.setDIV);
+						makeItemComplex(Trustee.docs[this.dir][0].docs[this.child], spinner, this.src, this.path, this.setDIV);
 						this.rendered = 1;
 					}
 				});
