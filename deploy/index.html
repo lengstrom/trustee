@@ -177,14 +177,14 @@
 			var gui = require('nw.gui');
 			var win = gui.Window.get();
 
-			win.on('close', function() {
-				if (window.__working) {
-					var c = confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')
-					if (c) {
-						Window.close(true);
-					}
-				}
-			});
+			// win.on('close', function() {
+			// 	if (window.__working) {
+			// 		var c = confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')
+			// 		if (c) {
+			// 			Window.close(true);
+			// 		}
+			// 	}
+			// });
 
 			$('#separator').bind('mousedown', function(e) {
 				document.body.style.cursor = 'ew-resize';

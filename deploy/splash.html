@@ -172,7 +172,7 @@
 			var path = require('path');
 			var unzip = require('decompress-zip');
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
-			var dns = require('dns');
+			var dns = require('native-dns');
 			window.__working = 0;
 
 			loadPlugins();
@@ -189,23 +189,19 @@
 				$(spinner.el).css('left', "170px");
 				$(spinner.el).css('margin-top', "-11px");
 				$('#availDocs').append(spinner.el);
-				var a = isOnline(function() {
-					var re = https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
-					re.spinner = this.spinner;
-				}, function(){
-					setAvailableDocs(this.spinner);
-				}, spinner.el);
+				dns.resolve('www.github.com', 'A', function(err){
+					if (err) {
+						setAvailableDocs(spinner.el);
+					}
+					else {
+						var re = https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
+						re.spinner = spinner.el;
+					}
+				});
 			}
 
 			function isOnline(cbt, cbf, spinner) {
-				var a = https.get('https://github.com', function (re) {
-					if (re) {
-						this.cbt();
-					}
-					else {
-						this.cbt();
-					}
-				});
+				var a = dns.resolve('www.github.com', 'A', dnsResponse);
 
 				a.spinner = spinner;
 				a.cbt = cbt;
@@ -371,6 +367,7 @@
 
 				var dir = this.dir;
 				var name = this.name;
+				parent.removeDocs(dir);
 				if (fs.existsSync(process.cwd() + '/plugins/docList.json')) {
 					var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
 					var found;
@@ -499,17 +496,16 @@
 			}
 
 			function updatePlugin(repoURL, active, div) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
-				var checkOnline = isOnline(function(){
-					window.__working++;
-					downloadRepo("https://codeload.github.com/" + this.repoURL.split('/')[3] + "/" + this.repoURL.split('/')[4] + "/zip/master", this.active, this.div);
-				}, function(){
-					showAlert("Can't access internet!");
-					$(this.div.spinner).remove();
+				dns.resolve('www.github.com', 'A', function(err){
+					if (err) {
+						showAlert("Can't access internet!");
+						$(div.spinner).remove();
+					}
+					else {
+						window.__working++;
+						downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
+					}
 				});
-
-				checkOnline.repoURL = repoURL;
-				checkOnline.active = active;
-				checkOnline.div = div;
 			}
 
 			function downloadRepo(url, active, div) {
