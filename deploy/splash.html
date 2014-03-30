@@ -198,9 +198,9 @@
 			}
 
 			function isOnline(cbt, cbf, spinner) {
-				var a = https.get('https://github.com', function (err) {
-					if (err) {
-						this.cbf();
+				var a = https.get('https://github.com', function (re) {
+					if (re) {
+						this.cbt();
 					}
 					else {
 						this.cbt();
@@ -371,16 +371,22 @@
 
 				var dir = this.dir;
 				var name = this.name;
-				var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
-				var found;
-				docList.forEach(function(o) {
-					if (o.repoURL.split('/')[4] + '-master' == dir) {
-						found = 1;
-						addAvailableDoc(name, o.repoURL);
+				if (fs.existsSync(fs.readFileSync(process.cwd() + '/plugins/docList.json')) {
+					var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+					var found;
+					docList.forEach(function(o) {
+						if (o.repoURL.split('/')[4] + '-master' == dir) {
+							found = 1;
+							addAvailableDoc(name, o.repoURL);
+							parent.removeDocs(o);
+						}
+					});
+	
+					if (!found) {
+						setAvailableDocs();
 					}
-				});
-
-				if (!found) {
+				}
+				else {
 					setAvailableDocs();
 				}
 				//Remove docs
@@ -569,6 +575,7 @@
 							}
 						}
 					});
+
 					extractor.extract({
 						path: process.cwd() + '/plugins/',
 						filter: function (file) {
@@ -647,6 +654,7 @@
 						}
 					}
 				});
+
 				return docs;
 			}
 
