@@ -174,8 +174,8 @@
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
 			var dns = require('native-dns');
 			window.__working = 0;
+			loadPlugins(0);
 
-			loadPlugins();
 			$('#dledDocsHeader').bind('click', function() {
 				$('#dlDocsTable').toggle();
 			});
@@ -249,9 +249,17 @@
 				$('#availDocs').animate({'background-color': '#FFF'}, {duration:600});
 			}
 
-			function loadPlugins() {
-				getDownloadableDocs();
-				getPlugins(); 
+			function loadPlugins(reload) {
+				$('.row').remove();
+				if (reload) {
+					parent.removeAllPlugins();
+					getPlugins(1);
+				}
+				else {
+					getPlugins(0);
+				}
+
+				getDownloadableDocs(); //fine
 			}
 
 			function addAvailableDoc(name, url) {
@@ -328,7 +336,7 @@
 								$(row.spinner).css('left', "200px");
 								$(row.spinner).css('margin-top', "-11px");
 								$(row).css('background-color', '#f1c40f');
-								updatePlugin(o.repoURL, 1, row);
+								updatePlugin(o.repoURL, 1, row, dir);
 							}
 						});
 
@@ -393,11 +401,12 @@
 				return Math.abs((day1 - day2)/(86400000)); //(1000 * 60 * 60 * 24));
 			}
 
-			function getPlugins() {
+			function getPlugins(make) {
 				var dirs = getDirs();
 				var exemp = [];
 				dirs.forEach(function(o) { //go through every directory in /plugins
-					if (!checkAndAddDocs(o)) {
+					var w = checkAndAddDocs(o);
+					if (!w || !make) {
 						exemp.push(o);
 					}
 				});
@@ -461,7 +470,7 @@
 					var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
 					if (verifyDocset(currentPath, dir)) {
 						if (differenceBetweenDays(new Date(), new Date(info.lastUpdated)) > 25) { //if it has been 30 days since the plugin has last been updated, update the plugin
-							updatePlugin(info.repoURL, info.active);
+							updatePlugin(info.repoURL, info.active, dir);
 						}
 					}
 					else {
@@ -495,13 +504,14 @@
 				$('body').append(alertCont);
 			}
 
-			function updatePlugin(repoURL, active, div) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
+			function updatePlugin(repoURL, active, div, dir) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
 				dns.resolve('www.github.com', 'A', function(err){
 					if (err) {
 						showAlert("Can't access internet!");
 						$(div.spinner).remove();
 					}
 					else {
+						parent.removeDocs(dir);
 						window.__working++;
 						downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
 					}
@@ -553,22 +563,16 @@
 							window.__working--;
 							if (this.__div) {
 								if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
-									$(this.__div.spinner).remove();
 									this.__div.row.remove();
-									checkAndAddDocs(dirName, this.__active);
 								}
 								else if (this.__div.className == 'row') {
-									$(this.__div.spinner).remove();
 									$(this.__div).remove();
-									checkAndAddDocs(dirName, this.__active);
-								}
-								else {
-									$(this.__div.spinner).remove();
 								}
 							}
-							else {
-								checkAndAddDocs(dirName, this.__active);
-							}
+
+							checkAndAddDocs(dirName, this.__active);
+							$(this.__div.row).remove();
+							$(this.__div.spinner).remove();
 						}
 					});
 
@@ -672,7 +676,7 @@
 					url = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + this.dir + "/info.json").toString()).repoURL;
 				}
 
-				updatePlugin(url, 1, this);
+				updatePlugin(url, 1, this, this.dir);
 				//
 			}
 

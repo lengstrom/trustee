@@ -173,6 +173,12 @@
 		<script type='text/javascript' src='js/jquery.js'></script>
 		<script type='text/javascript' src='js/spin.min.js'></script>
 		<script type="text/javascript">
+			$('iframe#splashScreen').ready(function(){
+				setTimeout(function(){
+					document.getElementById('splashScreen').contentWindow.loadPlugins(1);
+				}, 100); //wait 100 ms before calling to give the window time to load
+			});
+
 			var fs = require('fs');
 			var gui = require('nw.gui');
 			var win = gui.Window.get();
@@ -278,9 +284,22 @@
 				Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(pd, o));
 			}
 
+			function removeAllPlugins() {
+				for (var i in Trustee.docs) {
+					removeDocs(i);
+				}
+			}
+
 			function addDocsToIndex(pd, o) {
 				var mainIcon = '/plugins/' + o + pd.info.icons.path + pd.info.icons.mainIcon;
-				var path = '/plugins/' + pd.info.source;
+
+				if (pd.info.source.charAt(0) != '/') {
+					var path = '/plugins/' + o + '/' + pd.info.source;
+				}
+				else {
+					var path = '/plugins/' + o + pd.info.source;
+				}
+
 				var cumulative = [];
 				var types = [];
 				for (var i in pd.docs) {
@@ -294,7 +313,6 @@
 							var sPath = path + p[1]; //specific path to the file
 							var name = p[0];
 							cumulative.push([mainIcon, secondaryIcon, sPath, name])
-							
 						});
 					});
 				});
