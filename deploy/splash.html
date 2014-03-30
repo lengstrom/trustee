@@ -176,10 +176,9 @@
 			var https = require('https');
 			var path = require('path');
 			var unzip = require('decompress-zip');
-			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
+			var rimraf = require('rimraf');
 			var dns = require('native-dns');
 			parent.Trustee.working = 0;
-			// loadPlugins(0);
 
 			$('#reloadDocs').bind('click', reloadDocs);
 			$('#reloadAvailDocs').bind('click', reloadAvailDocs);
