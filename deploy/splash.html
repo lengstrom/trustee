@@ -371,7 +371,7 @@
 
 				var dir = this.dir;
 				var name = this.name;
-				if (fs.existsSync(fs.readFileSync(process.cwd() + '/plugins/docList.json'))) {
+				if (fs.existsSync(process.cwd() + '/plugins/docList.json')) {
 					var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
 					var found;
 					docList.forEach(function(o) {
