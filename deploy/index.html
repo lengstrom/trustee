@@ -173,10 +173,6 @@
 		<script type='text/javascript' src='js/jquery.js'></script>
 		<script type='text/javascript' src='js/spin.min.js'></script>
 		<script type="text/javascript">
-			//node-webkit
-			// require('nw.gui').Window.get().maximize();
-
-			//end node-webkit
 			var fs = require('fs');
 			var gui = require('nw.gui');
 			var win = gui.Window.get();
@@ -224,7 +220,7 @@
 						if (info.active) {
 							try {
 								var docs = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + o + "/output.json").toString());
-								importDocs(docs);
+								importDocs(docs, o);
 							}
 							catch (e) {
 								throw e;
@@ -235,14 +231,50 @@
 				});
 			}
 
-			function importDocs(pd) {
-				applyJSON(pd);
-				Trustee.docs[pd.info.name] = pd;
-				Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(pd));
+			function removeSlashes(str) {
+				if (str.charAt(0) == '/'){
+					str = str.substr(1);
+				}
+
+				if (str.charAt(str.length - 1) == '/'){
+					str = str.substr(str.length - 2);
+				}
+
+				return str;
 			}
 
-			function addDocsToIndex(pd) {
-				var mainIcon = '/plugins/' + pd.info.icons.path + pd.info.icons.mainIcon;
+			function removeDocs(dir) {
+				dir = removeSlashes(dir);
+				Trustee.docs.forEach(function(o) {
+					if (o[2] == dir) {
+						o[1][0].remove();
+						o[1][1].remove();
+						return true;
+					}
+					return false;
+				});
+			}
+
+			function addDocs(dir) {
+				dir = removeSlashes(dir);
+				if (fs.existsSync(process.cwd + '/plugins/' + dir)) {
+					var json = JSON.parse(fs.readFileSync(process.cwd + '/plugins/' + dir + '/output.json').toString());
+					importDocs(pd, dir);
+				}
+				else {
+					return false;
+				}
+			}
+
+			function importDocs(pd, o) {
+				o = removeSlashes(o);
+				var items = applyJSON(pd, o);
+				Trustee.docs[pd.info.name] = [pd, items, o]; //JSON, jQuery objects for overall container, then dir 
+				Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(pd, o));
+			}
+
+			function addDocsToIndex(pd, o) {
+				var mainIcon = '/plugins/' + o + pd.info.icons.path + pd.info.icons.mainIcon;
 				var path = '/plugins/' + pd.info.source;
 				var cumulative = [];
 				var types = [];
@@ -289,14 +321,22 @@
 				return spinner;
 			}
 
-			function applyJSON(json) {
+			function applyJSON(json, dir) {
 				//import docs from json
-				var path = '/plugins/' + json.info.source;
+				if (json.info.source.charAt(0) != '/') {
+					json.info.source = '/' + json.info.source;
+				}
+
+				if (json.info.icons.path.charAt(0) != '/') {
+					json.info.icons.path = '/' + json.info.icons.path;
+				}
+				var path = '/plugins/' + dir + json.info.source;
 				var pages = json.info.pages;
 				var items = [];
 				var docsHeader = $('<div>', {class:'itemBar folder'});
 				var folderImg = $('<img>', {src:"img/folder-open.png"});
-				var iconImg = $('<img>', {src:'/plugins/' + json.info.icons.path + json.info.icons.mainIcon, class:'iconImg'});
+				var mainIconSRC = '/plugins/' + dir + json.info.icons.path + json.info.icons.mainIcon;
+				var iconImg = $('<img>', {src:mainIconSRC, class:'iconImg'});
 				var folderTitle = $('<span>', {class: 'itemInner i0'})
 				var folderText = $('<span>', {class: 'itemText', text:json.info.name})
 				docsHeader.append(folderTitle);
@@ -318,6 +358,8 @@
 					this.folderImg.attr('src', this.folderImg.attr('src') == 'img/folder-closed.png' ? 'img/folder-open.png' : 'img/folder-closed.png');
 					this.setDIV.toggle();
 				});
+
+				return [docsHeader, setDIV]
 			}
 
 			function makeItemComplex(json, spinner, src, path, div) {
@@ -447,7 +489,7 @@
 					if (!this.rendered) {
 						var spinner = makeCustomSpinner();
 						this.appendChild(spinner.el);
-						makeItemComplex(Trustee.docs[Docs].docs[child], spinner, this.src, this.path, this.setDIV);
+						makeItemComplex(Trustee.docs[Docs][0].docs[child], spinner, this.src, this.path, this.setDIV);
 						this.rendered = 1;
 					}
 				});
@@ -517,7 +559,7 @@
 				if (url == 'splash.html') {
 					$('#splashScreen').show();
 					$('#display').hide();
-					document.getElementById('display').src = url;
+					document.getElementById('splashScreen').src = url;
 				}
 				else {
 					if (!isURLTheSame(document.getElementById('display').src, url)) { //assumes that the second url is a relative path

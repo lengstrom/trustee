@@ -123,8 +123,11 @@
 			.alertTextCont {
 				font-size: 15pt;
 				color:#FFF;
-				padding:10px;
-				width:350px;
+				height:105px;
+				width:330px;
+				margin-top: 10px;
+				margin-left: 10px;
+				overflow: scroll;
 				text-align: center;
 			}
 
@@ -133,7 +136,7 @@
 				position:absolute;
 				top:2px;
 				right:3px;
-				font-size: 120%;
+				/*font-size: 120%;*/
 				cursor:pointer;
 			}
 
@@ -169,6 +172,7 @@
 			var path = require('path');
 			var unzip = require('decompress-zip');
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
+			var dns = require('dns');
 			window.__working = 0;
 
 			loadPlugins();
@@ -181,28 +185,51 @@
 			});
 
 			function getDownloadableDocs() {
-				if (navigator.onLine) {
-					https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
-				}
-				else {
-					setAvailableDocs();
-				}
+				var spinner = makeCustomSpinner();
+				$(spinner.el).css('left', "170px");
+				$(spinner.el).css('margin-top', "-11px");
+				$('#availDocs').append(spinner.el);
+				var a = isOnline(function() {
+					var re = https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
+					re.spinner = this.spinner;
+				}, function(){
+					setAvailableDocs(this.spinner);
+				}, spinner.el);
+			}
+
+			function isOnline(cbt, cbf, spinner) {
+				var a = https.get('https://github.com', function (err) {
+					if (err) {
+						this.cbf();
+					}
+					else {
+						this.cbt();
+					}
+				});
+
+				a.spinner = spinner;
+				a.cbt = cbt;
+				a.cbf = cbf;
+
+				return this;
 			}
 
 			function docListDownloaded(response) {
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
+					$(this.spinner).remove();
 					showAlert("Error getting list of docs");
 					return;
 				}
 				var file = fs.createWriteStream(process.cwd() + '/plugins/docList.json');
 				response.pipe(file);
+				file.spinner = this.spinner;
 				file.on('finish', function() { //callback for when the file is finished being downloaded
 					this.close(); 
-					setAvailableDocs();
+					setAvailableDocs(this.spinner);
 				});
 			}
 
-			function setAvailableDocs() {
+			function setAvailableDocs(spinner) {
 				if (fs.existsSync(process.cwd() + '/plugins/docList.json')) {
 					var dirs = getDirs();
 					var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
@@ -215,6 +242,9 @@
 				}
 				else {
 					showAlert("No internet and no archived copy of the documentation - could not fetch docs.")
+				}
+				if (spinner) {
+					$(spinner).remove();
 				}
 			}
 
@@ -257,12 +287,12 @@
 					input.prop('checked', false);
 				}
 
-				input.bind('mouseup', function() {
-					if ($(this).prop('checked') == true) {
-						setActive($(this).dir, 1);
+				input.bind('click', function() {
+					if ($(this).prop('checked')) {
+						setActive(this.dir, 1);
 					}
 					else if ($(this).prop('checked') == false) {
-						setActive($(this).dir, 0);
+						setActive(this.dir, 0);
 					}
 				});
 
@@ -385,9 +415,18 @@
 			}
 
 			function setActive(dir, state) {
-				var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dir + "/info.json").toString());
+				if (dir.charAt(0) != '/') {
+					dir = '/' + dir;
+				}
+				var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins' + dir + "/info.json").toString());
 				info.active = state;
 				fs.writeFileSync(process.cwd() + '/plugins/' + dir + "/info.json", JSON.stringify(info));
+				if (state == 0) {
+					parent.removeDocs(dir);
+				}
+				else {
+					parent.addDocs(dir);
+				}
 			}
 
 			function verifyDocset(currentPath, dir) {
@@ -436,6 +475,8 @@
 					addDocsToTable(dir.substr(1), 0, dir.substr(1), dir, "No info.json file found");
 					return false;
 				}
+
+				return true;
 			}
 			
 			function showAlert(text) {
@@ -452,14 +493,17 @@
 			}
 
 			function updatePlugin(repoURL, active, div) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
-				if (navigator.onLine) { //if we have internet
+				var checkOnline = isOnline(function(){
 					window.__working++;
-					downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
-				}
-				else {
+					downloadRepo("https://codeload.github.com/" + this.repoURL.split('/')[3] + "/" + this.repoURL.split('/')[4] + "/zip/master", this.active, this.div);
+				}, function(){
 					showAlert("Can't access internet!");
-					$(div.spinner).remove();
-				}
+					$(this.div.spinner).remove();
+				});
+
+				checkOnline.repoURL = repoURL;
+				checkOnline.active = active;
+				checkOnline.div = div;
 			}
 
 			function downloadRepo(url, active, div) {
@@ -523,8 +567,8 @@
 							else {
 								checkAndAddDocs(dirName, this.__active);
 							}
+						}
 					});
-
 					extractor.extract({
 						path: process.cwd() + '/plugins/',
 						filter: function (file) {
