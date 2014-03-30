@@ -1,2 +1,4 @@
 *.DS_Store
-gruntfile
+Gruntfile.js
+node_modules/grunt-node-webkit-builder/*
+node_modules/grunt/*

@@ -1,6 +1,7 @@
 {
   "name": "Trustee",
   "main": "app://Trustee/deploy/index.html",
+  "version":"1.0.0",
   "description": "Open source documentation manager",
   "window": {
     "toolbar": false,
@@ -8,8 +9,11 @@
     "width": 800,
     "height": 640,
     "frame": false,
-    "title":"Trustee",
-    "resizable":true,
+    "title": "Trustee",
+    "resizable": true,
     "show": false
+  },
+  "devDependencies": {
+    "grunt-node-webkit-builder": "^0.1.18"
   }
 }
