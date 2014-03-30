@@ -3,7 +3,7 @@
   "main": "app://Trustee/deploy/index.html",
   "description": "Open source documentation manager",
   "window": {
-    "toolbar": true,
+    "toolbar": false,
     "icon": "resources/logo.png",
     "width": 800,
     "height": 640,
