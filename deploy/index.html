@@ -165,7 +165,7 @@
 			</div>
 		</div>
 		<div id = 'rcol' style = 'position:relative;float:left;margin:0;width:400px;height:100%;'>
-			<iframe id = 'display' src="splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;'></iframe>
+			<iframe id = 'display' src="splash.html" style = 'width:100%; height:100%;border:none;padding:0;margin:0;' nwdisable nwfaketop></iframe>
 			<div id = 'displayCover' style = 'position:absolute;width:100%;height:100%;top:0;left:0;background-color:rgba(0, 0, 0, 0);z-index:-1;'></div>
 		</div>
 
@@ -181,9 +181,9 @@
 			var win = gui.Window.get();
 
 			win.on('close', function() {
-				debugger;
 				if (window.__working) {
-					if (window.confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')) {
+					var c = confirm('Trustee is working right now, you might corrupt or lose downloaded docsets - do you really want to quit?')
+					if (c) {
 						Window.close(true);
 					}
 				}
@@ -233,7 +233,6 @@
 			*/
 
 			function getDocsList(exemps) {
-				debugger;
 				var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
 				var dirs = []; //array to store all the directories within /plugins
 				var currentPath = process.cwd() + "/plugins/"; //so that we don't have to constantly write the absolute path

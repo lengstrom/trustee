@@ -397,7 +397,7 @@
 				if (typeof(info.docsURL) != 'string') return false;
 
 				if (!fs.existsSync(currentPath + dir + '/output.json')) return false;
-				// var info = JSON.parse(fs.readFileSync(currentPath + dir + '/output.json').toString());
+				//  var info = JSON.parse(fs.readFileSync(currentPath + dir + '/output.json').toString());
 				//go into more detail about this later on to verify docs
 				return true;
 			}
@@ -468,11 +468,11 @@
 				file.active = active;
 				file.filename = filename;
 				file.div = div;
-				request = https.get(url, beginDocsDL);
+				request = https.get(url, endDownloadingRepo);
 				request.file = file;
 			}
 
-			function beginDocsDL(response) {
+			function endDownloadingRepo(response) {
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 					showAlert("Error getting url " + url);
 					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
@@ -497,89 +497,36 @@
 						var dirName = this.__filename.substr(0, this.__filename.length - 4) + '-master';
 						if (fs.existsSync(process.cwd() + '/plugins/' + dirName + '/info.json')) {
 							var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dirName + '/info.json').toString());
-							var file = fs.createWriteStream(process.cwd() + '/plugins/' + dirName + '/docs.zip');
-							file.div = this.__div;
-							var prot = info.docsURL.indexOf('https') == 0 ? https : http;
-							var request = prot.get(info.docsURL, docsDownloaded);
-							request.file = file;
-							file.dir = dirName;
-							file.info = info;
-							file.active = this.__active;
-						}
-						else {
-							rimraf.sync(process.cwd() + '/plugins/' + dirName);
-							showAlert('No info.json file in ' + dirName);
+							info.lastUpdated = JSON.stringify(new Date());
+							if (info.active == undefined) {
+								this.__active = 1;
+								info.active = 1;
+							}
+
+							fs.writeFileSync(process.cwd() + '/plugins/' + dirName + '/info.json', JSON.stringify(info));
 							window.__working--;
-							return;
-						}
+							if (this.__div) {
+								if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
+									$(this.__div.spinner).remove();
+									this.__div.row.remove();
+									checkAndAddDocs(dirName, this.__active);
+								}
+								else if (this.__div.className == 'row') {
+									$(this.__div.spinner).remove();
+									$(this.__div).remove();
+									checkAndAddDocs(dirName, this.__active);
+								}
+								else {
+									$(this.__div.spinner).remove();
+								}
+							}
+							else {
+								checkAndAddDocs(dirName, this.__active);
+							}
 					});
 
 					extractor.extract({
 						path: process.cwd() + '/plugins/',
-						filter: function (file) {
-							return file.type !== "SymbolicLink";
-						}
-					});
-				});
-			}
-
-			function docsDownloaded(response) {
-				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
-					window.__working--;
-					showAlert("Error getting url " + this.file.info.docsURL);
-					setActive(this.file.dir, 0);
-					if (this.file.div) {
-						$(this.file.div).css('background-color', '#c0392b');
-					}
-					rimraf.sync(process.cwd() + '/plugins/'  + this.file.dir); //delete plugins
-					return;
-				}
-				response.pipe(this.file);
-				this.file.on('finish', function() { //callback for when the file is finished being downloaded
-					this.close(); 
-					var extractor = new unzip(process.cwd() + '/plugins/'  + this.dir + '/docs.zip');
-					// var extractor = fs.createReadStream(process.cwd() + '/plugins/'  + this.dir + '/docs.zip').pipe(unzip.Extract({ path: process.cwd() + '/plugins/' + this.dir})); //file into /plugins/, overwriting any previous file
-					extractor.__div = this.div;
-					extractor.__info = this.info;
-					extractor.__active = this.active;
-					extractor.__dir = this.dir;
-					extractor.on('error', function(err) {
-						throw err;
-						window.__working--;
-					});
-
-					extractor.on('extract', function() {
-						rimraf.sync(process.cwd() + '/plugins/'  + this.dir + '/docs.zip'); //delete zip file
-						this.__info.lastUpdated = JSON.stringify(new Date());
-						if (this.__info.active == undefined) {
-							this.__active = 1;
-							this.__info.active = 1;
-						}
-
-						fs.writeFileSync(process.cwd() + '/plugins/' + this.__dir + '/info.json', JSON.stringify(this.__info));
-						window.__working--;
-						if (this.__div) {
-							if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
-								$(this.__div.spinner).remove();
-								this.__div.row.remove();
-								checkAndAddDocs(this.__dir, this.__active);
-							}
-							else if (this.__div.className == 'row') {
-								$(this.__div.spinner).remove();
-								$(this.__div).remove();
-								checkAndAddDocs(this.__dir, this.__active);
-							}
-							else {
-								$(this.__div.spinner).remove();
-							}
-						}
-						else {
-							checkAndAddDocs(this.__dir, this.__active);
-						}
-					});
-
-					extractor.extract({
-						path: process.cwd() + '/plugins/' + extractor.__dir,
 						filter: function (file) {
 							return file.type !== "SymbolicLink";
 						}
