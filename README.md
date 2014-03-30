@@ -1,20 +1,16 @@
-trustee
+Trustee
 =======
 
 An offline doc viewer
 
-Node dependencies:
--socket.io
-
-dependencies
+Dependencies
 ============
 
-Install node-webkit from [here](https://github.com/rogerwang/node-webkit).
+node-webkit: install [here](https://github.com/rogerwang/node-webkit).
 
-running
+Running
 =======
 
 From the command line:
 
-    /Applications/node-webkit.app/Contents/MacOS/node-webkit .
-
+    /Applications/node-webkit.app/Contents/MacOS/node-webkit . (while in ./ of the repository)
