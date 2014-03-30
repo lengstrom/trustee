@@ -1,4 +1,5 @@
 var win = require('nw.gui').Window.get();
+$('#display').hide();
 document.getElementById('splashScreen').onload = function() {
 	document.getElementById('splashScreen').contentWindow.loadPlugins(1);
 };
