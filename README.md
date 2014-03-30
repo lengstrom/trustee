@@ -11,9 +11,9 @@ OSX: [here](https://www.dropbox.com/s/6o48xuflb7pw991/Trustee.app.zip)
 
 Windows: Coming soon *
 
-Linux (x64): Coming soon *
+Linux (64 bit): Coming soon *
 
-Linux (x32): Coming soon *
+Linux (32 bit): Coming soon *
 
 
 *I have experimental binaries for this platform, but I don't have the platform available to test on.
