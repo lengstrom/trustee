@@ -37,6 +37,10 @@
 				border:1px solid #27ae60;
 			}
 
+			.downloadBtn {
+				width:82px;
+			}
+
 			.docTitle {
 				float:left;
 				overflow:scroll;
@@ -65,6 +69,11 @@
 
 			.updateText {
 				margin-left:8px;
+				/*margin-top:1px;*/
+			}
+
+			.downloadText {
+				margin-left:4px;
 				/*margin-top:1px;*/
 			}
 
@@ -114,7 +123,7 @@
 			.alertTextCont {
 				font-size: 15pt;
 				color:#FFF;
-				line-height: 125px;
+				padding:10px;
 				width:350px;
 				text-align: center;
 			}
@@ -140,7 +149,7 @@
 			<h3 id ='dledDocsHeader' class = 'docsHeader'>Downloaded Docs</h3>
 			<div class = 'docTable' id = 'dlDocsTable'>
 				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
-				<div style = 'height:25px;position:absolute;padding-left:5px;line-height:25px;'>
+				<div id = 'noDocs' style = 'height:25px;position:absolute;padding-left:5px;line-height:25px;'>
 					No docs! Download some below in the <a onclick = 'highlightDl()'>Download Docs</a> section.
 				</div>
 			</div>
@@ -158,20 +167,55 @@
 			var https = require('https');
 			var http = require('http');
 			var path = require('path');
-			var unzip = require('unzip');
+			var unzip = require('decompress-zip');
 			var rimraf = require(process.cwd() + '/deploy/js/rimraf.js');
+			window.__working = 0;
 
-			getPlugins();
-			$('#dledDocsHeader').bind('click', function(){
+			loadPlugins();
+			$('#dledDocsHeader').bind('click', function() {
 				$('#dlDocsTable').toggle();
 			});
 
-			$('#availDocs').bind('click', function(){
+			$('#availDocs').bind('click', function() {
 				$('#availDocsTable').toggle();
 			});
 
 			function getDownloadableDocs() {
-				// if ()
+				if (navigator.onLine) {
+					https.get('https://raw.githubusercontent.com/trusteedocs/trustee-docs-channel/master/docList.json', docListDownloaded);
+				}
+				else {
+					setAvailableDocs();
+				}
+			}
+
+			function docListDownloaded(response) {
+				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
+					showAlert("Error getting list of docs");
+					return;
+				}
+				var file = fs.createWriteStream(process.cwd() + '/plugins/docList.json');
+				response.pipe(file);
+				file.on('finish', function() { //callback for when the file is finished being downloaded
+					this.close(); 
+					setAvailableDocs();
+				});
+			}
+
+			function setAvailableDocs() {
+				if (fs.existsSync(process.cwd() + '/plugins/docList.json')) {
+					var dirs = getDirs();
+					var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+					info.forEach(function(o) {
+						var repoName = o.repoURL.split('/')[4] + '-master';
+						if (dirs.indexOf(repoName) == -1) {
+							addAvailableDoc(o.name, o.repoURL);
+						}
+					});
+				}
+				else {
+					showAlert("No internet and no archived copy of the documentation - could not fetch docs.")
+				}
 			}
 
 			function highlightDl() {
@@ -180,12 +224,31 @@
 			}
 
 			function loadPlugins() {
-				doesInfoFileExist(); //make sure that the overall plugins.json file exists
-				getPlugins(); //get the plugins from the plugins.json file, make sure that they exist / work, and reload plugins that need reloading.
+				getDownloadableDocs();
+				getPlugins(); 
 			}
 
-			function addDocsToTable(name, active, dir, notFoundPath) {
-				var row = $("<div>", {class:'row'});
+			function addAvailableDoc(name, url) {
+				var row = $("<div>", {class:'row available'});
+				var title = $("<div>", {class:'docTitle', text:name});
+				var download = $("<div>", {class:'btn updateBtn downloadBtn'});
+				download[0].row = row;
+				download[0].url = url;
+				var downloadText = $("<div>", {class:'downloadText',text:'Download'})
+				download.bind('click', clickUpdateDocs);
+				row.append(title);
+				download.append(downloadText);
+				row.append(download);
+				$('#availDocsTable').append(row);
+
+			}
+
+			function addDocsToTable(name, active, dir, notFoundPath, reason) {
+				if ($('#noDocs').length) {
+					$('#noDocs').hide();
+				}
+
+				var row = $("<div>", {class:'row downloaded'});
 				var input = $("<input>", {class:'docCheckbox', type:'checkbox'});
 				if (active) {
 					input.prop('checked', true);
@@ -194,12 +257,12 @@
 					input.prop('checked', false);
 				}
 
-				input.bind('mouseup', function(){
-					if (this.prop('checked') == true) {
-						setActive(this.dir, 1)
+				input.bind('mouseup', function() {
+					if ($(this).prop('checked') == true) {
+						setActive($(this).dir, 1);
 					}
-					else if (this.prop('checked') == false) {
-						setActive(this.dir, 0)
+					else if ($(this).prop('checked') == false) {
+						setActive($(this).dir, 0);
 					}
 				});
 
@@ -222,7 +285,32 @@
 					$(row).css("background-color", "#c0392b");
 					remove.remove();
 					update.remove();
-					title.html(title.html() + ' - Not found: ' + notFoundPath);
+					title.html(title.html() + ' - ' + reason + ': ' + notFoundPath + ". <b>Click to reload.</b>");
+					row.css('cursor', 'pointer');
+					row[0].dir = dir;
+					row.bind('click', function() {
+						var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+						var found;
+						var dir = this.dir;
+						var row = this;
+						docList.forEach(function(o) {
+							if (o.repoURL.split('/')[4] + '-master' == dir) {
+								found = 1;
+								var spinner = makeCustomSpinner();
+								$('#dledDocsHeader').append(spinner.el)
+								row.spinner = spinner.el;
+								$(row.spinner).css('left', "200px");
+								$(row.spinner).css('margin-top', "-11px");
+								$(row).css('background-color', '#f1c40f');
+								updatePlugin(o.repoURL, 1, row);
+							}
+						});
+
+						if (!found) {
+							showAlert('Documentation repository not found!');
+						}
+					});
+
 					input.remove();
 				}
 				else {
@@ -237,14 +325,34 @@
 
 					input[0].dir = dir;
 
-					update.bind('click', updateDocs);
-					remove.bind('click', removeDocs);
+					update.bind('click', clickUpdateDocs);
+					remove.bind('click', clickRemoveDocs);
 				}
+
+				return row;
 			}
 
-			function removeDocs() {
+			function clickRemoveDocs() {
 				rimraf.sync(process.cwd() + '/plugins' + this.dir);
 				this.row.remove();
+				if (!$('.downloaded').length) {
+					$('#noDocs').hide();
+				}
+
+				var dir = this.dir;
+				var name = this.name;
+				var docList = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/docList.json').toString());
+				var found;
+				docList.forEach(function(o) {
+					if (o.repoURL.split('/')[4] + '-master' == dir) {
+						found = 1;
+						addAvailableDoc(name, o.repoURL);
+					}
+				});
+
+				if (!found) {
+					setAvailableDocs();
+				}
 				//Remove docs
 			}
 			
@@ -253,16 +361,27 @@
 			}
 
 			function getPlugins() {
+				var dirs = getDirs();
+				var exemp = [];
+				dirs.forEach(function(o) { //go through every directory in /plugins
+					if (!checkAndAddDocs(o)) {
+						exemp.push(o);
+					}
+				});
+
+				parent.getDocsList(exemp);
+			}
+
+			function getDirs() {
 				var d = fs.readdirSync(process.cwd() + "/plugins"); //get names of files / directories inside /plugins
 				var dirs = []; //array to store all the directories within /plugins
 				var currentPath = process.cwd() + "/plugins/"; //so that we don't have to constantly write the absolute path
-				d.forEach(function(o){ //push every directory listed in the names inside of /plugins
+				d.forEach(function(o) { //push every directory listed in the names inside of /plugins
 					var stat = fs.statSync(currentPath + o);
 					if (stat.isDirectory()) dirs.push(o);
 				});
-				dirs.forEach(function(o){ //go through every directory in /plugins
-					checkAndAddDocs(o);
-				});
+
+				return dirs;
 			}
 
 			function setActive(dir, state) {
@@ -271,10 +390,15 @@
 				fs.writeFileSync(process.cwd() + '/plugins/' + dir + "/info.json", JSON.stringify(info));
 			}
 
-			function verifyJSON(info) {
+			function verifyDocset(currentPath, dir) {
+				var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
 				if (typeof(info.name) != 'string') return false;
 				if (typeof(info.repoURL) != 'string') return false;
 				if (typeof(info.docsURL) != 'string') return false;
+
+				if (!fs.existsSync(currentPath + dir + '/output.json')) return false;
+				// var info = JSON.parse(fs.readFileSync(currentPath + dir + '/output.json').toString());
+				//go into more detail about this later on to verify docs
 				return true;
 			}
 
@@ -290,16 +414,18 @@
 				if (dir.charAt(0) != '/') {
 					dir = '/' + dir;
 				}
+
 				if (fs.existsSync(currentPath + dir + "/info.json")) { //if the info file exists, proceed
 					var info = JSON.parse(fs.readFileSync(currentPath + dir + "/info.json").toString()); //get info file
-					if (verifyJSON(info)) {
+					if (verifyDocset(currentPath, dir)) {
 						if (differenceBetweenDays(new Date(), new Date(info.lastUpdated)) > 25) { //if it has been 30 days since the plugin has last been updated, update the plugin
 							updatePlugin(info.repoURL, info.active);
 						}
 					}
 					else {
 						//err
-						addDocsToTable(info.name, 0, 0, currentPath + dir);
+						addDocsToTable(info.name, 0, dir.substr(1), dir, "info.json formatted incorrectly");
+						return false;
 					}
 
 					addDocsToTable(info.name, info.active, dir);
@@ -307,7 +433,8 @@
 				else {
 					//if err, make row showing that the path is invalid in the list of plugins
 					//add in reload thing later
-					addDocsToTable(dir.substr(1), 0, dir.substr(1), currentPath + dir);
+					addDocsToTable(dir.substr(1), 0, dir.substr(1), dir, "No info.json file found");
+					return false;
 				}
 			}
 			
@@ -324,8 +451,9 @@
 				$('body').append(alertCont);
 			}
 
-			function updatePlugin(repoURL, active, div) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. (optional) div - row for the container div in the GUI (optional)
+			function updatePlugin(repoURL, active, div) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
 				if (navigator.onLine) { //if we have internet
+					window.__working++;
 					downloadRepo("https://codeload.github.com/" + repoURL.split('/')[3] + "/" + repoURL.split('/')[4] + "/zip/master", active, div);
 				}
 				else {
@@ -348,35 +476,56 @@
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
 					showAlert("Error getting url " + url);
 					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
+					window.__working--;
 					return;
 				}
 				response.pipe(this.file);
 				this.file.on('finish', function() { //callback for when the file is finished being downloaded
 					this.close(); 
-					fs.createReadStream(process.cwd() + '/plugins/'  + this.filename).pipe(unzip.Extract({ path: process.cwd() + '/plugins/'}));  //file into /plugins/, overwriting any previous file
-					rimraf.sync(process.cwd() + '/plugins/'  + this.filename); //delete zip file
-					var dirName = this.filename.substr(0, this.filename.length - 4) + '-master';
-					if (fs.existsSync(process.cwd() + '/plugins/' + dirName + '/info.json')) {
-						var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dirName + '/info.json').toString());
-						var file = fs.createWriteStream(process.cwd() + '/plugins/' + dirName + '/docs.zip');
-						file.div = this.div;
-						var prot = info.docsURL.indexOf('https') == 0 ? https : http;
-						var request = prot.get(info.docsURL, docsDownloaded);
-						request.file = file;
-						file.dir = dirName;
-						file.info = info;
-						file.active = this.active;
-					}
-					else {
-						rimraf.sync(process.cwd() + '/plugins/' + dirName);
-						showAlert('No info.json file in ' + dirName);
-						return;
-					}
+					// var extractor = unzip.Extract({ path: process.cwd() + '/plugins/'});
+					var extractor = new unzip(process.cwd() + '/plugins/'  + this.filename);
+					extractor.__filename = this.filename;
+					extractor.__div = this.div;
+					extractor.__active = this.active;
+					extractor.on('error', function(err) {
+						throw err;
+						window.__working--;
+					});
+
+					extractor.on('extract', function(log) {
+						rimraf.sync(this.filename); //delete zip file
+						var dirName = this.__filename.substr(0, this.__filename.length - 4) + '-master';
+						if (fs.existsSync(process.cwd() + '/plugins/' + dirName + '/info.json')) {
+							var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + dirName + '/info.json').toString());
+							var file = fs.createWriteStream(process.cwd() + '/plugins/' + dirName + '/docs.zip');
+							file.div = this.__div;
+							var prot = info.docsURL.indexOf('https') == 0 ? https : http;
+							var request = prot.get(info.docsURL, docsDownloaded);
+							request.file = file;
+							file.dir = dirName;
+							file.info = info;
+							file.active = this.__active;
+						}
+						else {
+							rimraf.sync(process.cwd() + '/plugins/' + dirName);
+							showAlert('No info.json file in ' + dirName);
+							window.__working--;
+							return;
+						}
+					});
+
+					extractor.extract({
+						path: process.cwd() + '/plugins/',
+						filter: function (file) {
+							return file.type !== "SymbolicLink";
+						}
+					});
 				});
 			}
 
 			function docsDownloaded(response) {
 				if (String(response.statusCode).charAt(0) != 2 && String(response.statusCode).charAt(0) != 3) {
+					window.__working--;
 					showAlert("Error getting url " + this.file.info.docsURL);
 					setActive(this.file.dir, 0);
 					if (this.file.div) {
@@ -387,53 +536,60 @@
 				}
 				response.pipe(this.file);
 				this.file.on('finish', function() { //callback for when the file is finished being downloaded
-
 					this.close(); 
-					fs.createReadStream(process.cwd() + '/plugins/'  + this.dir + '/docs.zip').pipe(unzip.Extract({ path: process.cwd() + '/plugins/' + this.dir})); //file into /plugins/, overwriting any previous file
-					rimraf.sync(process.cwd() + '/plugins/'  + this.dir + '/docs.zip'); //delete zip file
-					this.info.lastUpdated = JSON.stringify(new Date());
-					if (this.info.active == undefined) {
-						this.active = 1;
-						this.info.active = 1;
-					}
-					if (this.div) {
-						$(this.div.spinner).remove();
-						fs.writeFileSync(process.cwd() + '/plugins/' + this.dir + '/info.json', JSON.stringify(this.info));
-						return;
-					}
+					var extractor = new unzip(process.cwd() + '/plugins/'  + this.dir + '/docs.zip');
+					// var extractor = fs.createReadStream(process.cwd() + '/plugins/'  + this.dir + '/docs.zip').pipe(unzip.Extract({ path: process.cwd() + '/plugins/' + this.dir})); //file into /plugins/, overwriting any previous file
+					extractor.__div = this.div;
+					extractor.__info = this.info;
+					extractor.__active = this.active;
+					extractor.__dir = this.dir;
+					extractor.on('error', function(err) {
+						throw err;
+						window.__working--;
+					});
 
-					fs.writeFileSync(process.cwd() + '/plugins/' + this.dir + '/info.json', JSON.stringify(this.info));
-					checkAndAddDocs(this.dir, this.active);
+					extractor.on('extract', function() {
+						rimraf.sync(process.cwd() + '/plugins/'  + this.dir + '/docs.zip'); //delete zip file
+						this.__info.lastUpdated = JSON.stringify(new Date());
+						if (this.__info.active == undefined) {
+							this.__active = 1;
+							this.__info.active = 1;
+						}
+
+						fs.writeFileSync(process.cwd() + '/plugins/' + this.__dir + '/info.json', JSON.stringify(this.__info));
+						window.__working--;
+						if (this.__div) {
+							if ($(this.__div).html() == '<div class="downloadText">Download</div>') {
+								$(this.__div.spinner).remove();
+								this.__div.row.remove();
+								checkAndAddDocs(this.__dir, this.__active);
+							}
+							else if (this.__div.className == 'row') {
+								$(this.__div.spinner).remove();
+								$(this.__div).remove();
+								checkAndAddDocs(this.__dir, this.__active);
+							}
+							else {
+								$(this.__div.spinner).remove();
+							}
+						}
+						else {
+							checkAndAddDocs(this.__dir, this.__active);
+						}
+					});
+
+					extractor.extract({
+						path: process.cwd() + '/plugins/' + extractor.__dir,
+						filter: function (file) {
+							return file.type !== "SymbolicLink";
+						}
+					});
 				});
 			}
 
 			function getExtension(filename) {
 				var ext = path.extname(filename||'').split('.');
 				return ext[ext.length - 1];
-			}
-
-			function updatePluginsJSON(name, modifications) {
-				var JSONToWrite = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/plugins.json').toString());
-				JSONToWrite.forEach(function(o){
-					if (o.name == name) {
-						for (var i in modifications) {
-							o[i] = modifications[i];
-						}
-						fs.writeFileSync(process.cwd() + '/plugins/plugins.json', JSON.stringify(JSONToWrite));
-						return;
-					}
-				});
-
-				JSONToWrite.push({
-					folder:modifications.name,
-					name:modifications.name,
-					executable:modifications.executable,
-					lastUpdated:modifications.lastUpdated,
-					activated:1
-				});
-
-				fs.writeFileSync(process.cwd() + '/plugins/plugins.json', JSON.stringify(JSONToWrite));
-				return;
 			}
 
 			function isFileInDirectory(a, b) { //directory, file 
@@ -469,12 +625,6 @@
 				return false;
 			}
 
-			function doesInfoFileExist() {
-				if (!fs.existsSync(process.cwd() + '/plugins/plugins.json')) {
-					fs.writeFileSync(process.cwd() + '/plugins/plugins.json', '{plugins:[]}');
-				}
-			}
-
 			//should be in index.html for the actual parsing
 			function getDocs() {
 				var dirs = [];
@@ -497,7 +647,7 @@
 								}
 							}
 							else {
-								itemsInOutput.forEach(function(file){
+								itemsInOutput.forEach(function(file) {
 									if (getExtension(currentPath + o + '/output/' + file) == "json") {
 										docs.push(JSON.parse(fs.readFileSync(currentPath + o + '/output/' + file).toString()));
 									}
@@ -506,7 +656,6 @@
 						}
 					}
 				});
-				console.log(docs);
 				return docs;
 			}
 
@@ -515,12 +664,20 @@
 				return ext[ext.length - 1];
 			}
 
-			function updateDocs() {
+			function clickUpdateDocs() {
 				var spinner = makeCustomSpinner();
 				this.row.append(spinner.el);
 				this.spinner = spinner.el;
-				var info = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + this.dir + "/info.json").toString());
-				updatePlugin(info.repoURL, info.active, this);
+				var url;
+				if (this.url) {
+					$(spinner.el).css('right', '112px');
+					url = this.url;
+				}
+				else {
+					url = JSON.parse(fs.readFileSync(process.cwd() + '/plugins/' + this.dir + "/info.json").toString()).repoURL;
+				}
+
+				updatePlugin(url, 1, this);
 				//
 			}
 
@@ -546,7 +703,7 @@
 				var spinner = new Spinner(opts).spin();
 				// $(spinner.el).css('position', 'abso');
 				$(spinner.el).css('right', '175px');
-				$(spinner.el).css('margin-top', '8px');
+				$(spinner.el).css('margin-top', '12px');
 				$(spinner.el).css('background-color', '#FFFFFF');
 				// $(spinner.el).css('bottom', '9px');
 				return spinner;
