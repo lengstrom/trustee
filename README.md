@@ -18,8 +18,9 @@ Linux (32 bit): Coming soon *
 
 *I have experimental binaries for this platform, but I don't have the platform available to test on.
 
-Dependencies (If you don't just want the executable)
+Dependencies
 ============
+Note: Unneeded for just running the executable
 
 node-webkit: install [here](https://github.com/rogerwang/node-webkit).
 
