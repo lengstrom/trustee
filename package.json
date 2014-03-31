@@ -8,7 +8,7 @@
     "icon": "resources/logo.png",
     "width": 800,
     "height": 640,
-    "frame": false,
+    "frame": true,
     "title": "Trustee",
     "resizable": true,
     "show":true,
