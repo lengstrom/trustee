@@ -29,4 +29,4 @@ Running
 
 From the command line:
 
-    /Applications/node-webkit.app/Contents/MacOS/node-webkit . (while in ./ of the repository)
+    /Applications/node-webkit.app/Contents/MacOS/node-webkit /path/to/repository/
