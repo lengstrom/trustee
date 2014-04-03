@@ -24,6 +24,10 @@ Note: Unneeded for just running the executable
 
 node-webkit: install [here](https://github.com/rogerwang/node-webkit).
 
+Contributing
+============
+Most of what you need to know is on the [wiki](https://github.com/trusteedocs/trustee/wiki).
+
 Running
 =======
 
