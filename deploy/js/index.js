@@ -1,4 +1,5 @@
 var win = require('nw.gui').Window.get();
+process.on(‘uncaughtException’, function noop (err) {});
 $('#display').hide();
 document.getElementById('splashScreen').onload = function() {
 	try {
@@ -118,7 +119,7 @@ function addDocs(dir) {
 function importDocs(pd, o) {
 	o = removeSlashes(o);
 	var items = applyJSON(pd, o);
-	Trustee.docs[o] = [pd, items, o]; //JSON, jQuery objects for overall container, then dir 
+	Trustee.docs[o] = [pd, items, o]; //JSON, jQuery objects for overall container, then dir
 	Trustee.cumulative = Trustee.cumulative.concat(addDocsToIndex(pd, o));
 }
 
@@ -369,7 +370,7 @@ function itemClicked() {
 		$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
 		$(Trustee.selected).css('color', '#232323');
 	}
-	
+
 	Trustee.selected = this;
 	$(this).css('background-color', '#232323');
 	$(this).css('color', 'rgb(230, 233, 240)');
