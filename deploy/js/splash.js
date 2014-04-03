@@ -357,7 +357,7 @@ function showAlert(text) {
 	$('body').append(alertCont);
 }
 
-function updatePlugin(repoURL, active, div, dir) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in 
+function updatePlugin(repoURL, active, div, dir) { //repoURL - string containing url :: info - dict containing the info.json file of the plugin to update. div - the div that the update button is in
 	try {
 		dns.resolve('www.github.com', function(err){
 			if (err) {

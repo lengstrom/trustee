@@ -1,5 +1,5 @@
 var win = require('nw.gui').Window.get();
-process.on(‘uncaughtException’, function noop (err) {});
+
 $('#display').hide();
 document.getElementById('splashScreen').onload = function() {
 	try {
