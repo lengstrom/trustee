@@ -18,7 +18,7 @@ Linux (32 bit): Coming soon *
 
 *I have experimental binaries for this platform, but I don't have the platform available to test on.
 
-<a name = 'deps'></a>Dependencies
+Dependencies
 ============
 Note: Unneeded for just running the executable
 
