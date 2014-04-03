@@ -4,7 +4,7 @@
   "version":"1.0.0",
   "description": "Open source documentation manager",
   "window": {
-    "toolbar":false,
+    "toolbar":true,
     "icon": "resources/logo.png",
     "width": 800,
     "height": 640,

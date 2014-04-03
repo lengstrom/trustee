@@ -3,7 +3,7 @@ var win = require('nw.gui').Window.get();
 $('#display').hide();
 document.getElementById('splashScreen').onload = function() {
 	try {
-	document.getElementById('splashScreen').contentWindow.loadPlugins(1);
+		document.getElementById('splashScreen').contentWindow.loadPlugins(1);
 	}
 	catch (err) {
 
@@ -224,7 +224,7 @@ function applyJSON(json, dir) {
 	return [docsHeader, setDIV];
 }
 
-function makeItemComplex(json, spinner, src, path, div) {
+function makeItemComplex(json, spinner, src, path, div) { //json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
 	if (json.length === 0) {
 		spinner.stop();
 		return;
@@ -268,7 +268,8 @@ function makeHeterogeneousComplex(items, queryLength) {
 	var newDiv = $("<div>");
 	for (var j = 0; j < items.length; j++) {
 		var end = j == items.length - 1 ? 1 : 0;
-		makeItem(items[j][0][3], items[j][0][2] ,items[j][0][0], newDiv, end, spinner, -1, items[j][0][1], items[j][1], queryLength);
+		//spinner -> target
+		makeItem(items[j][0][3], items[j][0][2], items[j][0][0], newDiv, end, spinner, -1, items[j][0][1], items[j][1], queryLength);
 	}
 
 	$("#searchResults").prepend(newDiv);
@@ -429,8 +430,9 @@ function home() {
 	};
 }
 
-function setFrameURL(url) {
-	url = url == undefined ? 'splash.html' : url;
+function setFrameURL(url, docs) {
+	$('#pageList').hide();
+	url = url === undefined ? 'splash.html' : url;
 	if (url == 'splash.html') {
 		document.getElementById('splashScreen').src = url;
 		$('#splashScreen').show();
@@ -440,11 +442,40 @@ function setFrameURL(url) {
 	else {
 		if (!isURLTheSame(document.getElementById('display').src, url)) { //assumes that the second url is a relative path
 			document.getElementById('display').src = url;
+			setSidebar(url, docs);
 		}
 		$('#splashScreen').hide();
 		$('#display').show();
 		return document.getElementById('display');
 	}
+}
+
+////json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
+
+function setSidebar(page, docs) {
+	$('#pageList').empty();
+	page = page.substr('/trustee_plugins'.length + 1);
+	var dir = page.split('/')[0];
+	page = page.substr(page.indexOf('/') + 1);
+	page = page.substr(page.indexOf('/') + 1);
+	if (page.indexOf('#') != -1) {
+		page = page.substring(0, page.indexOf('#'));
+	}
+//json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
+	Trustee.docs[dir][0].pages[page].forEach(function(t){
+		if (t.length) {
+			t.forEach(function(o){
+				//Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons.mainIcon,
+				var tDiv = $('<div>');
+				var src = Trustee.docs[dir][0].info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + Trustee.docs[dir][0].info.icons.docsIcons[i] : '/trustee_plugins/' + Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons[i];
+				makeItemComplex(o, '', src, '/trustee_plugins/' + dir + '/' + Trustee.docs[dir][0].info.source, tDiv);
+				$('#pageList').append('<hr>');
+				$('#pageList').append(tDiv);
+			});
+		}
+	});
+
+	$('#pageList').show();
 }
 
 function isURLTheSame(url, relativeURL) {
