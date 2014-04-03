@@ -9,7 +9,6 @@ document.getElementById('splashScreen').onload = function() {
 	}
 };
 
-
 var fs = require('fs');
 
 var Trustee = {
@@ -192,8 +191,8 @@ function applyJSON(json, dir) {
 	if (json.info.icons.path.charAt(0) != '/') {
 		json.info.icons.path = '/' + json.info.icons.path;
 	}
+
 	var path = '/trustee_plugins/' + dir + json.info.source;
-	var pages = json.info.pages;
 	var items = [];
 	var docsHeader = $('<div>', {class:'itemBar folder'});
 	var folderImg = $('<img>', {src:"img/folder-open.png"});
@@ -264,6 +263,7 @@ function makeHeterogeneousComplex(items, queryLength) {
 		$('#searchResults').empty();
 		return;
 	}
+
 	var newDiv = $("<div>");
 	for (var j = 0; j < items.length; j++) {
 		var end = j == items.length - 1 ? 1 : 0;
