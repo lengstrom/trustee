@@ -57,6 +57,14 @@ function docListDownloaded(response) {
 		showAlert("Error getting list of docs");
 		return;
 	}
+    //create trustee_plugins folder if it doesn't exist already
+    fs.mkdir(process.cwd() + '/trustee_plugins', function(e) {
+        if(!e || e && e.code == 'EEXISTS') {
+            //folder already existing
+        } else {
+            //folder just created
+        }
+    });
 	var file = fs.createWriteStream(process.cwd() + '/trustee_plugins/docList.json');
 	response.pipe(file);
 	file.spinner = this.spinner;
