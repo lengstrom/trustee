@@ -235,24 +235,26 @@ function makeItemComplex(json, spinner, src, path, div) { //json: array of items
 	}
 }
 
-function makeHeterogeneousComplex(items, queryLength) {
-	items.sort(function(a,b) {
-		if (a[1] === 0) {
-			if (b[1] === 0) {
-				if (a[0][3] < b[0][3]) return -1;
-				if (a[0][3] > b[0][3]) return 1;
-				return 0;
-			}
-			else {
-				return -1;
-			}
-		}
-		else {
+function sortArrayAlphabetically(a,b) {
+	if (a[1] === 0) {
+		if (b[1] === 0) {
 			if (a[0][3] < b[0][3]) return -1;
 			if (a[0][3] > b[0][3]) return 1;
 			return 0;
 		}
-	});
+		else {
+			return -1;
+		}
+	}
+	else {
+		if (a[0][3] < b[0][3]) return -1;
+		if (a[0][3] > b[0][3]) return 1;
+		return 0;
+	}
+}
+
+function makeHeterogeneousComplex(items, queryLength) {
+	items.sort(sortArrayAlphabetically);
 	items = items.slice(0, 50);
 	var spinner = makeCustomSpinner();
 	$(spinner.el).css('top','18px');
@@ -461,19 +463,19 @@ function setSidebar(page, docs) {
 	if (page.indexOf('#') != -1) {
 		page = page.substring(0, page.indexOf('#'));
 	}
+
 //json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
-	Trustee.docs[dir][0].pages[page].forEach(function(t){
-		if (t.length) {
-			t.forEach(function(o){
-				//Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons.mainIcon,
+	for (var t in Trustee.docs[dir][0].pages[page]) {
+		if (Trustee.docs[dir][0].pages[page][t].length) {
+			for (var i in Trustee.docs[dir][0].pages[page][t]) {
 				var tDiv = $('<div>');
-				var src = Trustee.docs[dir][0].info.icons.docsIcons[i].search('/') == -1 ? 'img/objects/' + Trustee.docs[dir][0].info.icons.docsIcons[i] : '/trustee_plugins/' + Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons[i];
-				makeItemComplex(o, '', src, '/trustee_plugins/' + dir + '/' + Trustee.docs[dir][0].info.source, tDiv);
+				var src = Trustee.docs[dir][0].info.icons.docsIcons[t].search('/') == -1 ? 'img/objects/' + Trustee.docs[dir][0].info.icons.docsIcons[t] : '/trustee_plugins/' + Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons[t];
+				makeItemComplex(Trustee.docs[dir][0].pages[page][t][i], '', src, '/trustee_plugins/' + dir + '/' + Trustee.docs[dir][0].info.source, tDiv);
 				$('#pageList').append('<hr>');
 				$('#pageList').append(tDiv);
-			});
+			}
 		}
-	});
+	}
 
 	$('#pageList').show();
 }
