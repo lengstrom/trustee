@@ -25,6 +25,14 @@
 				color: #232323;
 			}
 
+			#pageList {
+				position:fixed;
+				bottom:0;
+				z-index: 5;
+				height:340px;
+				background-color: rgb(230,233,240);
+			}
+
 			#tree {
 				position:relative;
 				margin-top:65px;
@@ -36,6 +44,13 @@
 			}
 
 			#lcol {
+				position:relative;
+				background-color:rgb(230, 233, 240);
+				float:left;
+				margin:0;
+				padding:0;
+				width:250px;
+				height:100%;
 				overflow: hidden;
 				overflow-y:scroll;
 			}
@@ -139,7 +154,7 @@
 		</style>
 	</head>
 	<body>
-		<div id = 'lcol' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;margin:0;padding:0;width:250px;height:100%;'>
+		<div id = 'lcol'>
 			<div class = 'searchbarCont' style ='position:fixed;'>
 				<input type = 'text' id = 'search' placeholder='Search docs' onchange = "update_done()" onkeyup="update()"/>
 				<div class='homebtn' style = 'position:absolute;right:0px; top:15px;cursor:pointer;' onclick = 'home();'>

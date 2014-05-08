@@ -386,6 +386,7 @@ function windowResize() {
 function separatorMove(e) {
 	if (e.clientX < 150) { //set minimum width of left column to 150px
 		$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
+		$('#pageList').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
 		$('.searchbarCont').css('width' , '140px');
 		$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 		return;
@@ -398,12 +399,14 @@ function separatorMove(e) {
 
 	if (parseInt($(window).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
 		$('#lcol').css('width', parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+		$('#pageList').css('width', parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
 		$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 		$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
 		return;
 	}
 
 	$('#lcol').css('width', e.clientX - 3 + 'px');
+	$('#pageList').css('width', e.clientX - 3 + 'px');
 	$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 	$('#rcol').css('width', parseInt($(window).width(), 10) - e.clientX - 3 + 'px');
 }
@@ -469,9 +472,9 @@ function setSidebar(page, docs) {
 		if (Trustee.docs[dir][0].pages[page][t].length) {
 			for (var i in Trustee.docs[dir][0].pages[page][t]) {
 				var tDiv = $('<div>');
+				var s = makeCustomSpinner();
 				var src = Trustee.docs[dir][0].info.icons.docsIcons[t].search('/') == -1 ? 'img/objects/' + Trustee.docs[dir][0].info.icons.docsIcons[t] : '/trustee_plugins/' + Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons[t];
-				makeItemComplex(Trustee.docs[dir][0].pages[page][t][i], '', src, '/trustee_plugins/' + dir + '/' + Trustee.docs[dir][0].info.source, tDiv);
-				$('#pageList').append('<hr>');
+				makeItemComplex(Trustee.docs[dir][0].pages[page][t][i], s, src, '/trustee_plugins/' + dir + '/' + Trustee.docs[dir][0].info.source, tDiv);
 				$('#pageList').append(tDiv);
 			}
 		}
