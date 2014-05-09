@@ -28,9 +28,21 @@
 			#pageList {
 				position:fixed;
 				bottom:0;
+				overflow-y:scroll;
+				overflow-x:hidden;
+				width:250px;
 				z-index: 5;
 				height:340px;
 				background-color: rgb(230,233,240);
+			}
+
+			#pageListDragBar {
+				position:fixed;
+				z-index: 3;
+				cursor:ns-resize;
+				width:256px;
+				height:9px;
+				background-color: #232323;
 			}
 
 			#tree {
@@ -110,7 +122,6 @@
 			.itemBar {
 				height:20px;
 				line-height:20px;
-				/*overflow: hidden;*/
 				position:relative;
 				font-size: 9pt;
 				z-index: 2;
@@ -147,10 +158,6 @@
 			.i3 {
 				margin-left: 64px;
 			}
-
-			.folder {
-
-			}
 		</style>
 	</head>
 	<body>
@@ -166,6 +173,11 @@
 			<div id = 'searchResults'>
 			</div>
 			<div id = 'pageList'>
+				<div id = 'pageListDragBar'>
+					<div style = 'position:absolute;margin-top:2px;border-radius:5px;width:3px;left:50%;margin-left:-4px;height:3px;border:1px solid rgb(230, 233, 240);'></div>
+					<div style = 'position:absolute;margin-top:2px;border-radius:5px;width:3px;left:50%;margin-left:4px;height:3px;border:1px solid rgb(230, 233, 240);'></div>
+				</div>
+				<div id = 'pageListCont'></div>
 			</div>
 		</div>
 		<div id = 'separator' style = 'position:relative;background-color:rgb(230, 233, 240);float:left;padding:0;margin:0;width:6px;height:100%;cursor:ew-resize;'>

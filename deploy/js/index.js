@@ -14,7 +14,7 @@ var fs = require('fs');
 
 var Trustee = {
 	working:0,
-	selected:undefined,
+	selected:[],
 	docs: {},
 	click:0,
 	cumulative:[],
@@ -35,13 +35,23 @@ win.on('close', function() {
 	}
 });
 
+$('#pageList').hide();
+
 $('#separator').bind('mousedown', function(e) {
 	document.body.style.cursor = 'ew-resize';
 	$('#displayCover').css('z-index', '2');
 	$(window).bind('mousemove', separatorMove);
 });
 
+$('#pageListDragBar').bind('mousedown', function(e) {
+	document.body.style.cursor = 'ns-resize';
+	$('#displayCover').css('z-index', '2');
+	$(window).bind('mousemove', sidebarItemsSeparatorMove);
+});
+
 $(window).bind('mouseup', separatorMouseUp);
+
+
 $(window).resize(windowResize);
 $('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
 $('.searchbarCont').css('width', $('#lcol').width() + 'px');
@@ -224,14 +234,14 @@ function applyJSON(json, dir) {
 	return [docsHeader, setDIV];
 }
 
-function makeItemComplex(json, spinner, src, path, div) { //json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
+function makeItemComplex(json, spinner, src, path, div, il) { //json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
 	if (json.length === 0) {
 		spinner.stop();
 		return;
 	}
 	for (var j = 0; j < json.length; j++) {
 		var end = j == json.length - 1 ? 1 : 0;
-		makeItem(json[j][0], path + json[j][1], src, div, end, spinner);
+		makeItem(json[j][0], path + json[j][1], src, div, end, spinner, il);
 	}
 }
 
@@ -284,7 +294,7 @@ function makeItem(text, itemURL, imgPath, div, end, spinner, indentationLevel, i
 		if (indentationLevel == -1) { //make sure we don't get a 0 value
 			innerCont = $('<span>', {class: 'itemInner'});
 		}
-		else if (indentationLevel + 3) { //make sure we don't get a 0 value
+		else if (indentationLevel + 2) { //make sure we don't get a 0 value
 			innerCont = $('<span>', {class: 'itemInner i' + indentationLevel});
 		}
 		else {
@@ -369,14 +379,25 @@ function addFolder(name, indentationLevel, elem, imgPath, Docs, child, path, dir
 }
 
 function itemClicked() {
-	if (Trustee.selected) {
-		$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
-		$(Trustee.selected).css('color', '#232323');
-	}
+	Trustee.selected.forEach(function(o){
+		$(o).css('background-color', 'rgb(230, 233, 240)');
+		$(o).css('color', '#232323');
+	});
 
-	Trustee.selected = this;
-	$(this).css('background-color', '#232323');
-	$(this).css('color', 'rgb(230, 233, 240)');
+	for (var i = 0; i < this.classList.length; i++) {
+		if (this.classList[i] == 'folder') {
+			return;
+		}
+	}
+	var itemURLToCompare = this.itemURL;
+	$(".itemBar").each(function(i,o){
+		if (o.itemURL === itemURLToCompare) {
+			debugger;
+			Trustee.selected.push(this);
+			$(o).css('background-color', '#232323');
+			$(o).css('color', 'rgb(230, 233, 240)');
+		}
+	});
 }
 
 function windowResize() {
@@ -386,44 +407,65 @@ function windowResize() {
 function separatorMove(e) {
 	if (e.clientX < 150) { //set minimum width of left column to 150px
 		$('#lcol').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
+		$('#pageListDragBar').css('width', 6 + 140 + 'px'); //go to the lowest possible value if it is trying to be dragged smaller
 		$('#pageList').css('width', '140px'); //go to the lowest possible value if it is trying to be dragged smaller
 		$('.searchbarCont').css('width' , '140px');
 		$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
-		return;
+		return false;
 	}
 
 	if (e.clientX > 625) { //set minimum width of right column to 150px
 		$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
-		return;
+		return false;
 	}
 
 	if (parseInt($(window).width(), 10) - e.clientX < 150) { //set minimum width of right column to 150px
 		$('#lcol').css('width', parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
+		$('#pageListDragBar').css('width', 6 + parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
 		$('#pageList').css('width', parseInt($(window).width(), 10) - 144 + 'px'); //go to the lowest possible value if it is trying to be dragged smallerq
 		$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 		$('#rcol').css('width', parseInt($(window).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px');
-		return;
+		return false;
 	}
 
 	$('#lcol').css('width', e.clientX - 3 + 'px');
+	$('#pageListDragBar').css('width', 6 + e.clientX - 3 + 'px');
 	$('#pageList').css('width', e.clientX - 3 + 'px');
 	$('.searchbarCont').css('width', $('#lcol').width() + 'px');
 	$('#rcol').css('width', parseInt($(window).width(), 10) - e.clientX - 3 + 'px');
+}
+
+function sidebarItemsSeparatorMove(e) {
+	if (e.clientY > parseInt($(window).height(), 10) - 100) {
+		$('#pageList').css('height', '100px');
+		return false;
+	}
+	if (e.clientY < 100) {
+		$('#pageList').css('height', parseInt($(window).height(), 10) - 100 + 'px');
+		return false;
+	}
+
+	$('#pageList').css('height', parseInt($(window).height(), 10) - e.clientY + 'px');
+	return false;
 }
 
 function separatorMouseUp(e) {
 	document.body.style.cursor = '';
 	$('#displayCover').css('z-index', '-1');
 	$(window).unbind('mousemove', separatorMove);
+	$(window).unbind('mousemove', sidebarItemsSeparatorMove);
+
 }
 
 function home() {
 	var frame = setFrameURL();
-	if (Trustee.selected) {
-		$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
-		$(Trustee.selected).css('color', '#232323');
-		Trustee.selected = undefined;
-	}
+	$('#pageList').hide();
+	Trustee.selected.forEach(function(o){
+		$(o).css('background-color', 'rgb(230, 233, 240)');
+		$(o).css('color', '#232323');
+	});
+
+	Trustee.selected = [];
 
 	frame.onload = function() {
 		try {
@@ -435,8 +477,8 @@ function home() {
 	};
 }
 
-function setFrameURL(url, docs) {
-	$('#pageList').hide();
+function setFrameURL(url) {
+	// $('#pageList').hide();
 	url = url === undefined ? 'splash.html' : url;
 	if (url == 'splash.html') {
 		document.getElementById('splashScreen').src = url;
@@ -445,20 +487,23 @@ function setFrameURL(url, docs) {
 		return document.getElementById('splashScreen');
 	}
 	else {
-		if (!isURLTheSame(document.getElementById('display').src, url)) { //assumes that the second url is a relative path
-			document.getElementById('display').src = url;
-			setSidebar(url, docs);
+		if (!isURLTheSame(document.getElementById('display').src, url, 1)) {
+			setSidebar(url);
 		}
+
+		if (!isURLTheSame(document.getElementById('display').src, url, 0)) { //assumes that the second url is a relative path
+			document.getElementById('display').src = url;
+		}
+
 		$('#splashScreen').hide();
 		$('#display').show();
 		return document.getElementById('display');
 	}
 }
 
-////json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
-
-function setSidebar(page, docs) {
-	$('#pageList').empty();
+function setSidebar(page) {
+	$('#pageListCont').empty();
+	$('#pageListCont').append($('<div>', {style:"height:9px;"}));
 	page = page.substr('/trustee_plugins'.length + 1);
 	var dir = page.split('/')[0];
 	page = page.substr(page.indexOf('/') + 1);
@@ -470,20 +515,27 @@ function setSidebar(page, docs) {
 //json: array of items to make -> each item should be a [name, url]. spinner - div of spinner. src - icon for the type of object that is being made. Path - path to the folder containing the html docs. div - container div you're writing to. 
 	for (var t in Trustee.docs[dir][0].pages[page]) {
 		if (Trustee.docs[dir][0].pages[page][t].length) {
-			for (var i in Trustee.docs[dir][0].pages[page][t]) {
-				var tDiv = $('<div>');
-				var s = makeCustomSpinner();
-				var src = Trustee.docs[dir][0].info.icons.docsIcons[t].search('/') == -1 ? 'img/objects/' + Trustee.docs[dir][0].info.icons.docsIcons[t] : '/trustee_plugins/' + Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons[t];
-				makeItemComplex(Trustee.docs[dir][0].pages[page][t][i], s, src, '/trustee_plugins/' + dir + '/' + Trustee.docs[dir][0].info.source, tDiv);
-				$('#pageList').append(tDiv);
-			}
+			var tDiv = $('<div>');
+			var s = makeCustomSpinner();
+			var src = Trustee.docs[dir][0].info.icons.docsIcons[t].search('/') == -1 ? 'img/objects/' + Trustee.docs[dir][0].info.icons.docsIcons[t] : '/trustee_plugins/' + Trustee.docs[dir][0].info.icons.path + Trustee.docs[dir][0].info.icons[t];
+			makeItemComplex(Trustee.docs[dir][0].pages[page][t], s, src, '/trustee_plugins/' + dir + Trustee.docs[dir][0].info.source, tDiv, -1);
+			$('#pageListCont').append(tDiv);
 		}
 	}
 
 	$('#pageList').show();
 }
 
-function isURLTheSame(url, relativeURL) {
+function isURLTheSame(url, relativeURL, hash) {
+	if (hash) {
+		if (url.indexOf('#') != -1) {
+			url = url.substring(0, url.indexOf('#'));
+		}
+		if (relativeURL.indexOf('#') != -1) {
+			relativeURL = relativeURL.substring(0, relativeURL.indexOf('#'));
+		}
+	}
+	debugger;
 	var urlRelativePath = getRelativePath(url, 0);
 	if (relativeURL.charAt(0) == '/') {
 		if ('/' + window.location.origin.split('/')[2] + relativeURL == urlRelativePath) {
@@ -535,21 +587,23 @@ function update() {
 		$('#searchResults').hide();
 		$('#tree').show();
 		// setFrameURL()
-		if (Trustee.selected) {
-			$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
-			$(Trustee.selected).css('color', '#232323');
-			Trustee.selected = undefined;
-		}
+		Trustee.selected.forEach(function(o){
+			$(o).css('background-color', 'rgb(230, 233, 240)');
+			$(o).css('color', '#232323');
+		});
+
+		Trustee.selected = [];
 	}
 	else if ($("#tree").is(":visible")) {
 		$('#searchResults').show();
 		$('#tree').hide();
 		// setFrameURL();
-		if (Trustee.selected) {
-			$(Trustee.selected).css('background-color', 'rgb(230, 233, 240)');
-			$(Trustee.selected).css('color', '#232323');
-			Trustee.selected = undefined;
-		}
+		Trustee.selected.forEach(function(o){
+			$(o).css('background-color', 'rgb(230, 233, 240)');
+			$(o).css('color', '#232323');
+		});
+
+		Trustee.selected = [];
 	}
 	var results = [];
 	if (query != Trustee.last_query) {
