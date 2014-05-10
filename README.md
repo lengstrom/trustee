@@ -18,19 +18,21 @@ Linux (32 bit): Coming soon *
 
 *I have experimental binaries for this platform, but I don't have the platform available to test on.
 
-Dependencies
-============
-Note: Unneeded for just running the executable
-
-node-webkit: install [here](https://github.com/rogerwang/node-webkit).
 
 Contributing
 ============
 Most of what you need to know is on the [wiki](https://github.com/trusteedocs/trustee/wiki).
 
-Running
+<br>
+Executing from source
 =======
+###Dependencies
 
+*Note: Unneeded for just running the executable
+
+node-webkit: install [here](https://github.com/rogerwang/node-webkit).
+
+###Running
 From the command line:
 
     /Applications/node-webkit.app/Contents/MacOS/node-webkit /path/to/repository/
