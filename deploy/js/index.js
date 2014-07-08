@@ -1,3 +1,9 @@
+setTimeout(function(){
+	require('nw.gui').Window.get().showDevTools();
+	window.JSFinder = new JSFind(document.getElementById('textToSearch'), document.getElementById('display'));
+	$('.finder').css('z-index',1);
+}, 1);
+
 var win = require('nw.gui').Window.get();
 
 $('#display').hide();
@@ -50,8 +56,6 @@ $('#pageListDragBar').bind('mousedown', function(e) {
 });
 
 $(window).bind('mouseup', separatorMouseUp);
-
-
 $(window).resize(windowResize);
 $('#rcol').css('width', parseInt($(document).width(), 10) - parseInt($('#lcol').width(), 10) - 6 + 'px'); //set right col relative to left
 $('.searchbarCont').css('width', $('#lcol').width() + 'px');
@@ -392,7 +396,6 @@ function itemClicked() {
 	var itemURLToCompare = this.itemURL;
 	$(".itemBar").each(function(i,o){
 		if (o.itemURL === itemURLToCompare) {
-			debugger;
 			Trustee.selected.push(this);
 			$(o).css('background-color', '#232323');
 			$(o).css('color', 'rgb(230, 233, 240)');
@@ -478,11 +481,11 @@ function home() {
 }
 
 function setFrameURL(url) {
-	// $('#pageList').hide();
 	url = url === undefined ? 'splash.html' : url;
 	if (url == 'splash.html') {
 		document.getElementById('splashScreen').src = url;
 		$('#splashScreen').show();
+		JSFinder.hide();
 		$('#display').hide();
 		return document.getElementById('splashScreen');
 	}
@@ -535,7 +538,6 @@ function isURLTheSame(url, relativeURL, hash) {
 			relativeURL = relativeURL.substring(0, relativeURL.indexOf('#'));
 		}
 	}
-	debugger;
 	var urlRelativePath = getRelativePath(url, 0);
 	if (relativeURL.charAt(0) == '/') {
 		if ('/' + window.location.origin.split('/')[2] + relativeURL == urlRelativePath) {

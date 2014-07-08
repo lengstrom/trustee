@@ -2,6 +2,7 @@
 	<head>
 		<!-- <link rel="stylesheet" type = "text/css" href = "css/style.css"> -->
 		<link rel="stylesheet" type = "text/css" href = "css/font-awesome.min.css">
+		<link rel='stylesheet' href='css/style.css'>
 		<!-- Set min-width in node-webkit to 310px -->
 		<title>Trustee Docs</title>
 		<style type = 'text/css'>
@@ -103,11 +104,8 @@
 			#search {
 				position:relative;
 				height:30px;
-				background-color: rgb(230, 233, 240);
 				border:1px solid #232323;
-				width:-moz-calc(100% - 45px);
 				width:-webkit-calc(100% - 45px);
-				width:-o-calc(100% - 45px);
 				width:calc(100% - 45px);
 				padding-left:4px;
 				margin:0;
@@ -161,6 +159,7 @@
 		</style>
 	</head>
 	<body>
+		<div id = 'searchBar'></div>
 		<div id = 'lcol'>
 			<div class = 'searchbarCont' style ='position:fixed;'>
 				<input type = 'text' id = 'search' placeholder='Search docs' onchange = "update_done()" onkeyup="update()"/>
@@ -199,6 +198,9 @@
 		<script type = 'text/javascript' src = "js/winstate.js"></script>
 		<script type = 'text/javascript' src = 'js/jquery.js'></script>
 		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
+		<script type = 'text/javascript' src = 'js/rangy-core.js'></script>
+		<script type = 'text/javascript' src = 'js/jsfind.js'></script>
+		<script type = 'text/javascript' src = 'js/keypress-2.0.2.min.js'></script>
 		<script type = "text/javascript" src = 'js/index.js'></script>
 	</body>
 </html>
