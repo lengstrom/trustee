@@ -1,6 +1,6 @@
 setTimeout(function(){
 	require('nw.gui').Window.get().showDevTools();
-	window.JSFinder = new JSFind(document.getElementById('textToSearch'), document.getElementById('display'));
+	window.JSFinder = new JSFind(document.getElementById('display'), document.getElementById('contentSearcher'));
 	$('.finder').css('z-index',1);
 }, 1);
 
@@ -497,9 +497,15 @@ function setFrameURL(url) {
 		if (!isURLTheSame(document.getElementById('display').src, url, 0)) { //assumes that the second url is a relative path
 			document.getElementById('display').src = url;
 		}
+		if (JSFinder) {
+			document.getElementById('display').onload = function(){
+				JSFinder.setiFrameListener();
+			};
+		}
 
 		$('#splashScreen').hide();
 		$('#display').show();
+
 		return document.getElementById('display');
 	}
 }

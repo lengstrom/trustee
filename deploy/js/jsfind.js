@@ -7,6 +7,35 @@ function JSFind(target, searchDiv, cl) {
 	this.keys = [];
 	this.listener = new window.keypress.Listener();
 	this.currentSpan = [-1, undefined]; // [#,range]
+
+	this.setiFrameListener = function() {
+		this.iFrameListener = new window.keypress.Listener(document.getElementById('display').contentWindow.document);
+		var t = this;
+		this.iFrameListener.register_combo({
+			keys:'ctrl f',
+			on_keydown:function(e) {
+				if (this.input != document.activeElement) {
+					t.handleKeyCombo(e);
+					e.preventDefault();
+					return false;
+				}
+			}
+		});
+
+		this.iFrameListener.register_combo({
+			keys:'cmd f',
+			on_keydown:function(e) {
+				if (this.input != document.activeElement) {
+					t.handleKeyCombo(e);
+					e.preventDefault();
+					return false;
+				}
+			}
+		});
+
+		this.target = document.getElementById('display').contentWindow.document.documentElement;
+		$(this.target).append('<link rel="stylesheet" href="/deploy/css/style.css" type="text/css" />');
+	};
 	
 	this.hide = function(a) {
 		$('.close').css('color','#c0392b');
@@ -56,6 +85,7 @@ function JSFind(target, searchDiv, cl) {
 	};
 
 	this.init = function() {
+		this.setiFrameListener();
 		if (cl) {
 			this.cssApplier = rangy.createCssClassApplier(cl, {normalize: true});
 		} else {
@@ -199,7 +229,7 @@ function JSFind(target, searchDiv, cl) {
 		}
 
 		var j;
-		var plaintextToSearch = target.textContent.toLowerCase();
+		var plaintextToSearch = this.target.textContent.toLowerCase();
 		var plaintextRanges = [];
 		var strings = plaintextToSearch.match(re);
 		if (strings === null || strings === undefined || strings.length === 0) {
