@@ -8,6 +8,7 @@ parent.Trustee.working = 0;
 
 $('#reloadDocs').bind('click', reloadDocs);
 $('#reloadAvailDocs').bind('click', reloadAvailDocs);
+setTimeout(reloadDocs, 1);
 
 function reloadDocs() {
 	$('.alertCont').remove();

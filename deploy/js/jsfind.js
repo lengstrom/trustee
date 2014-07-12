@@ -48,7 +48,6 @@ function JSFind(target, searchDiv, cl) {
 
 		this.input.blur();
 		this.hidden = 1;
-		$('.sideLight').remove();
 		for (i = 0; i < this.ranges.length; i++) {
 			this.cssApplier.undoToRange(this.ranges[i]);
 		}
@@ -195,8 +194,6 @@ function JSFind(target, searchDiv, cl) {
 		this.hide(1);
 	};
 
-	this.init();
-
 	this.updateFind = function(e) {
 		if (e.keyCode == 13) {
 			this.processCurrentSpan();
@@ -277,18 +274,7 @@ function JSFind(target, searchDiv, cl) {
 			this.matches.innerHTML = '';
 		}
 
-		$('.sideLight').remove();
 		if (this.currentSpan[0] != -1) {
-			for (var i = 0; i < this.ranges.length; i++) {
-				var top = $(this.ranges[i].startContainer.parentNode).offset().top;
-				top /= $(this.target).height();
-				top *= window.innerHeight;
-				var el = document.createElement('div');
-				el.className = 'sideLight';
-				$(el).css('top', top + 'px');
-				$(this.target).append(el);
-			}
-
 			this.cssApplierCurrent.applyToRange(this.currentSpan[1]);
 			var dist = $(this.currentSpan[1].startContainer.parentNode).offset().top + 20;
 			if (dist > window.innerHeight + $('body').scrollTop() || dist < $('body').scrollTop()) {
@@ -367,7 +353,7 @@ function findPlaintextIndexInNode(index, node) {
 			}
 		} else if (cNode.nodeType == Node.TEXT_NODE) {
 			var nodeString = cNode.data;
-			if (nodeString.charAt(index - localIndex) != '') {
+			if (nodeString.charAt(index - localIndex) !== '') {
 				return [cNode, index - localIndex];
 			} else {
 				localIndex += nodeString.length;
