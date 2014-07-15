@@ -8,19 +8,33 @@
 				color:#232323;
 			}
 
-			.row {
+			.spinner {
+				float:left;
+				position:relative;
+				margin-top:12px;
+				background-color:'#FFFFFF';
+			}
 
+			.spinner-left {
+				left:calc(50% - 168px);
+			}
+
+			.spinner-right {
+				left:-84px;
+			}
+
+			.row {
 				line-height: 25px;
-				width:calc(100% - 2px);
-				width:-webkit-calc(100% - 2px);
-				border-left: 1px solid #232323;
-				border-right: 1px solid #232323;
+				width:calc(100% - 1px);
+				/*border-left: 1px solid #232323;*/
+				/*border-right: 1px solid #232323;*/
 				border-bottom: 1px solid #232323;
+				padding-top:2px;
 				overflow-x:scroll;
 			}
 
 			.btn {
-				margin-top: 2px;
+				margin-top: 1px;
 				margin-right: 5px;
 				float:right;
 				line-height:20px;
@@ -63,11 +77,7 @@
 			}
 
 			.docTable {
-				min-height: 25px;
-				margin-top: -15px;
-				width:-webkit-calc(100%-60px);
-				width:calc(100%-60px);
-				max-height: 550px;
+				width:calc(100% - 1px);
 				overflow:scroll;
 			}
 
@@ -90,26 +100,10 @@
 				color:#4183c4;
 				cursor:pointer;
 				text-decoration: none;
-				-webkit-touch-callout: none;
-				-webkit-user-select: none;
-				-khtml-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
 			}
 
 			a:hover {
 				text-decoration: underline;
-			}
-
-			.docsHeader {
-				cursor:pointer;
-				-webkit-touch-callout: none;
-				-webkit-user-select: none;
-				-khtml-user-select: none;
-				-moz-user-select: none;
-				-ms-user-select: none;
-				user-select: none;
 			}
 
 			.alertCont {
@@ -135,12 +129,33 @@
 				text-align: center;
 			}
 
+			#searchDocsets {
+				height:23px;
+				width:170px;
+				padding-left:2px;
+				background-color: #ffffff;
+				font-size:13px;
+				border:1px solid #232323;
+			}
+
+			#searchDocsets:focus {
+				outline-width: 0;
+			}
+
 			.alertCloseBtn {
 				color:#FFF;
 				position:absolute;
 				top:1px;
 				right:1px;
 				cursor:pointer;
+			}
+
+			.icon {
+				height:18px;
+				float:left;
+				margin-top:3px;
+				padding-right:1px;
+				margin-left:3px;
 			}
 
 			.alertCloseBtn:hover {
@@ -150,33 +165,37 @@
 		</style>
 	</head>
 	<body style='font-family:helvetica;color:#232323;'>
-		<div style = 'margin-left:2px;margin-top:15px;padding:0;'>
-			<div>
-				<h3 id ='dledDocsHeader' class = 'docsHeader'>Downloaded Docs</h3>
-				<i title='Reload docs' class = "fa fa-refresh" id = 'reloadDocs' style = 'position:absolute;right:8px;margin-top:-35px;cursor:pointer;'></i>
-			</div>
-			<div class = 'docTable' id = 'dlDocsTable'>
-				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
-				<div id = 'noDocs' style = 'height:25px;position:absolute;padding-left:5px;line-height:25px;'>
-					No docs! Download some below in the <a onclick = 'highlightDl()'>Download Docs</a> section.
+		<div style='height:50px;'>
+			<input id = 'searchDocsets' type = 'text' style='position:absolute;left:8px;margin-top:20px;' placeholder='Search docsets'>
+			<h3 id ='dledDocsHeader' class = 'docsHeader' style='position:absolute;left:calc(50% - 133px);'>Local Docs</h3>
+			<h3 id ='availDocs' class = 'docsHeader' style='position:absolute;left:calc(50% + 27px);'>Available Docs</h3>
+		</div>
+		<!-- <i title='Reload docs' class = "fa fa-refresh" id = 'reloadDocs' style = 'position:absolute;right:8px;margin-top:-35px;cursor:pointer;'></i> -->
+		<div style = 'position:relative;'>
+			<div style = 'width:calc(50% - 1px);float:left;height:100%;min-height:200px;max-height:calc(100% - 100px);overflow-y:scroll;border:1px solid #232323;border-top:5px solid #232323;border-right:none;'>
+				<div class = 'docTable' id = 'dlDocsTable'>
+					<div id = 'noDocs'>
+						<br><center><h2>No docs!</h2></center><br><center>Download docs in the <a onclick = 'highlightDl()'>Download Docs</a> section.</center>
+					</div>
 				</div>
 			</div>
+			<div style='border:1px solid #232323;border-top:5px solid #232323;width:calc(50% - 2px);float:right;height:100%;min-height:200px;max-height:calc(100% - 100px);overflow-y:scroll;border-left:1px solid #232323;'>
+				<div class = 'docTable' id = 'availDocsTable';>
 
-			<div>
-				<h3 id ='availDocs' class = 'docsHeader'>Download Docs</h3>
-				<i title = 'Reload docs list' class = "fa fa-refresh" id = 'reloadAvailDocs' style = 'position:absolute;right:8px;margin-top:-35px;cursor:pointer;'></i>
+				</div>
 			</div>
-			<div class = 'docTable' id = 'availDocsTable'>
-				<div style = 'height:5px;position:relative;width:100%;background-color:#232323;'></div>
-			</div>
-
-			<div>
-				<h4>Questions? Want to contribute? Go <a href = 'https://github.com/trusteedocs/trustee/wiki'>here</a>.</h3>
-			</div>
-		</div>	
+		</div>
+		<div style='position:absolute;bottom:0px;'>
+			<h4 style = 'margin-top:10px;'>Questions? Want to contribute? Go <a href = 'https://github.com/trusteedocs/trustee/wiki'>here</a>.</h3>
+		</div>
 		<script type = 'text/javascript' src = 'js/jquery.js'></script>
 		<script type = 'text/javascript' src = 'js/jquery.color.js'></script>
 		<script type = 'text/javascript' src = 'js/spin.min.js'></script>
-		<script type = 'text/javascript' src = 'js/splash.js'></script>
+		<script type = 'text/javascript' src = 'js/refactoring/splash/clickCallbacks.js'></script>
+		<script type = 'text/javascript' src = 'js/refactoring/splash/UI.js'></script>
+		<script type = 'text/javascript' src = 'js/refactoring/splash/DocSet.js'></script>
+		<script type = 'text/javascript' src = 'js/refactoring/splash/helpers.js'></script>
+		<script type = 'text/javascript' src = 'js/refactoring/splash/Searcher.js'></script>
+		<script type = 'text/javascript' src = 'js/refactoring/splash/main.js'></script>
 	</body>
 </html>
